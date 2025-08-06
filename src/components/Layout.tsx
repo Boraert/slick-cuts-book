@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Scissors, Menu, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,12 +12,13 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { t } = useLanguage();
 
   const navigation = [
-    { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
-    { name: "Book Appointment", href: "/book" },
-    { name: "Contact", href: "/contact" },
+    { name: t.home, href: "/" },
+    { name: t.services, href: "/services" },
+    { name: t.bookAppointment, href: "/book" },
+    { name: t.contact, href: "/contact" },
   ];
 
   return (
@@ -47,11 +50,12 @@ export function Layout({ children }: LayoutProps) {
               ))}
             </div>
 
-            {/* Admin Login Button */}
-            <div className="hidden md:block">
+            {/* Language Switcher and Admin Login */}
+            <div className="hidden md:flex items-center space-x-4">
+              <LanguageSwitcher />
               <Link to="/admin">
                 <Button variant="outline" size="sm">
-                  Admin Login
+                  {t.adminLogin}
                 </Button>
               </Link>
             </div>
@@ -90,12 +94,15 @@ export function Layout({ children }: LayoutProps) {
                     {item.name}
                   </Link>
                 ))}
+                <div className="px-3 py-2">
+                  <LanguageSwitcher />
+                </div>
                 <Link
                   to="/admin"
                   className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Admin Login
+                  {t.adminLogin}
                 </Link>
               </div>
             </div>
@@ -116,32 +123,32 @@ export function Layout({ children }: LayoutProps) {
                 <span className="text-lg font-bold">Elite Cuts</span>
               </div>
               <p className="text-muted-foreground">
-                Professional barbershop services with traditional craftsmanship and modern style.
+                {t.professionalBarbershopFooter}
               </p>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
+              <h3 className="text-lg font-semibold mb-4">{t.contactInfo}</h3>
               <div className="space-y-2 text-muted-foreground">
-                <p>123 Barber Street</p>
-                <p>City, State 12345</p>
-                <p>Phone: (555) 123-4567</p>
-                <p>Email: info@elitecuts.com</p>
+                <p>{t.address}</p>
+                <p>{t.copenhagen}, {t.denmark}</p>
+                <p>{t.phone}</p>
+                <p>{t.email}</p>
               </div>
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold mb-4">Hours</h3>
+              <h3 className="text-lg font-semibold mb-4">{t.hours}</h3>
               <div className="space-y-2 text-muted-foreground">
-                <p>Monday - Friday: 9:00 AM - 7:00 PM</p>
-                <p>Saturday: 8:00 AM - 6:00 PM</p>
-                <p>Sunday: 10:00 AM - 4:00 PM</p>
+                <p>{t.mondayFriday}</p>
+                <p>{t.saturday}</p>
+                <p>{t.sunday}</p>
               </div>
             </div>
           </div>
           
           <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground">
-            <p>&copy; 2024 Elite Cuts. All rights reserved.</p>
+            <p>&copy; 2024 Elite Cuts. {t.allRightsReserved}</p>
           </div>
         </div>
       </footer>

@@ -2,25 +2,25 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Scissors, Clock, Users, Star } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
+  const { t } = useLanguage();
+  
   const services = [
     {
-      name: "Classic Haircut",
-      description: "Traditional scissor cut with styling",
-      price: "$25",
+      name: t.classicHaircut,
+      description: t.classicHaircutDesc,
       icon: Scissors,
     },
     {
-      name: "Beard Trim",
-      description: "Professional beard shaping and styling",
-      price: "$15",
+      name: t.beardTrim,
+      description: t.beardTrimDesc,
       icon: Scissors,
     },
     {
-      name: "Full Package",
-      description: "Haircut + beard trim + hot towel treatment",
-      price: "$35",
+      name: t.fullPackage,
+      description: t.fullPackageDesc,
       icon: Star,
     },
   ];
@@ -28,18 +28,18 @@ export default function Home() {
   const features = [
     {
       icon: Clock,
-      title: "Quick & Easy Booking",
-      description: "Book your appointment online in just a few clicks",
+      title: t.quickEasyBooking,
+      description: t.quickBookingDesc,
     },
     {
       icon: Users,
-      title: "Expert Barbers",
-      description: "Experienced professionals with years of expertise",
+      title: t.expertBarbers,
+      description: t.expertBarbersDesc,
     },
     {
       icon: Star,
-      title: "Premium Service",
-      description: "High-quality tools and premium products",
+      title: t.premiumService,
+      description: t.premiumServiceDesc,
     },
   ];
 
@@ -49,21 +49,20 @@ export default function Home() {
       <section className="relative bg-gradient-to-br from-primary via-primary to-accent py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl lg:text-6xl font-bold text-primary-foreground mb-6">
-            Welcome to Elite Cuts
+            {t.heroTitle}
           </h1>
           <p className="text-xl lg:text-2xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto">
-            Experience the finest barbershop tradition with modern style. 
-            Professional cuts, expert service, timeless craftsmanship.
+            {t.heroSubtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/book">
               <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                Book Appointment
+                {t.bookAppointment}
               </Button>
             </Link>
             <Link to="/services">
               <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                View Services
+                {t.viewServices}
               </Button>
             </Link>
           </div>
@@ -75,10 +74,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Our Services
+              {t.ourServices}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Professional barbering services tailored to your style and preferences
+              {t.professionalBarbering}
             </p>
           </div>
 
@@ -93,9 +92,8 @@ export default function Home() {
                   <CardDescription className="text-lg">{service.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-accent mb-4">{service.price}</div>
                   <Link to="/book">
-                    <Button className="w-full">Book Now</Button>
+                    <Button className="w-full">{t.bookNow}</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -109,10 +107,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Why Choose Elite Cuts?
+              {t.whyChooseEliteCuts}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              We combine traditional barbering excellence with modern convenience
+              {t.traditionalExcellence}
             </p>
           </div>
 
@@ -136,14 +134,14 @@ export default function Home() {
       <section className="py-16 lg:py-24 bg-card">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Ready for Your Next Cut?
+            {t.readyForYourNextCut}
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Book your appointment today and experience the Elite Cuts difference
+            {t.experienceEliteCuts}
           </p>
           <Link to="/book">
             <Button size="lg" className="px-8 py-4 text-lg">
-              Book Your Appointment
+              {t.bookYourAppointment}
             </Button>
           </Link>
         </div>

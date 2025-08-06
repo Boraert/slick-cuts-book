@@ -14,15 +14,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { CalendarIcon, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const bookingSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
   customerEmail: z.string().email("Please enter a valid email address"),
   customerPhone: z.string().min(10, "Please enter a valid phone number"),
   barberId: z.string().min(1, "Please select a barber"),
-  serviceType: z.enum(["haircut", "beard_trim", "full_package"], {
-    required_error: "Please select a service",
-  }),
   appointmentDate: z.date({
     required_error: "Please select a date",
   }),
@@ -37,17 +35,13 @@ const timeSlots = [
   "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
 ];
 
-const services = [
-  { value: "haircut", label: "Classic Haircut - $25" },
-  { value: "beard_trim", label: "Beard Trim - $15" },
-  { value: "full_package", label: "Full Package - $35" },
-];
 
 export default function BookAppointment() {
   const [barbers, setBarbers] = useState<any[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -87,7 +81,7 @@ export default function BookAppointment() {
           customer_email: data.customerEmail,
           customer_phone: data.customerPhone,
           barber_id: data.barberId,
-          service_type: data.serviceType,
+          service_type: null,
           appointment_date: format(data.appointmentDate, "yyyy-MM-dd"),
           appointment_time: data.appointmentTime,
           status: "confirmed",
@@ -123,28 +117,28 @@ export default function BookAppointment() {
               <div className="mx-auto mb-4 p-3 bg-green-100 rounded-full w-fit">
                 <CheckCircle2 className="h-12 w-12 text-green-600" />
               </div>
-              <CardTitle className="text-2xl text-green-600">Booking Confirmed!</CardTitle>
+              <CardTitle className="text-2xl text-green-600">{t.bookingConfirmed}</CardTitle>
               <CardDescription className="text-lg">
-                Your appointment has been successfully booked. We'll send you a confirmation email shortly.
+                {t.appointmentSuccessfullyBooked}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 mb-6">
                 <div className="bg-muted p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Appointment Details:</h3>
+                  <h3 className="font-semibold mb-2">{t.appointmentDetailsTitle}</h3>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p><span className="font-medium">Date:</span> {form.getValues("appointmentDate") ? format(form.getValues("appointmentDate"), "MMMM d, yyyy") : ""}</p>
-                    <p><span className="font-medium">Time:</span> {form.getValues("appointmentTime")}</p>
-                    <p><span className="font-medium">Service:</span> {services.find(s => s.value === form.getValues("serviceType"))?.label}</p>
+                    <p><span className="font-medium">{t.date}:</span> {form.getValues("appointmentDate") ? format(form.getValues("appointmentDate"), "MMMM d, yyyy") : ""}</p>
+                    <p><span className="font-medium">{t.time}:</span> {form.getValues("appointmentTime")}</p>
+                    
                   </div>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button onClick={() => setIsSubmitted(false)} variant="outline">
-                  Book Another Appointment
+                  {t.bookAnother}
                 </Button>
                 <Button onClick={() => window.location.href = "/"}>
-                  Return to Home
+                  {t.returnHome}
                 </Button>
               </div>
             </CardContent>
@@ -159,18 +153,18 @@ export default function BookAppointment() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Book Your Appointment
+            {t.bookYourAppointment}
           </h1>
           <p className="text-lg text-muted-foreground">
-            Select your preferred date, time, and service
+            {t.fillInformation}
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Appointment Details</CardTitle>
+            <CardTitle>{t.appointmentDetails}</CardTitle>
             <CardDescription>
-              Fill in your information to schedule your appointment
+              {t.fillInformation}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -182,7 +176,7 @@ export default function BookAppointment() {
                     name="customerName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Full Name</FormLabel>
+                        <FormLabel>{t.fullName}</FormLabel>
                         <FormControl>
                           <Input placeholder="John Doe" {...field} />
                         </FormControl>
@@ -196,9 +190,9 @@ export default function BookAppointment() {
                     name="customerPhone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>{t.phoneNumber}</FormLabel>
                         <FormControl>
-                          <Input placeholder="(555) 123-4567" {...field} />
+                          <Input placeholder="+45 12 34 56 78" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -211,7 +205,7 @@ export default function BookAppointment() {
                   name="customerEmail"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel>{t.emailAddress}</FormLabel>
                       <FormControl>
                         <Input placeholder="john@example.com" type="email" {...field} />
                       </FormControl>
@@ -220,57 +214,30 @@ export default function BookAppointment() {
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="barberId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Preferred Barber</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a barber" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {barbers.map((barber) => (
-                              <SelectItem key={barber.id} value={barber.id}>
-                                {barber.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="serviceType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Service</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a service" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {services.map((service) => (
-                              <SelectItem key={service.value} value={service.value}>
-                                {service.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="barberId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t.preferredBarber}</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t.selectBarber} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {barbers.map((barber) => (
+                            <SelectItem key={barber.id} value={barber.id}>
+                              {barber.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -278,7 +245,7 @@ export default function BookAppointment() {
                     name="appointmentDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Date</FormLabel>
+                        <FormLabel>{t.date}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -292,7 +259,7 @@ export default function BookAppointment() {
                                 {field.value ? (
                                   format(field.value, "PPP")
                                 ) : (
-                                  <span>Pick a date</span>
+                                  <span>{t.pickDate}</span>
                                 )}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
@@ -320,11 +287,11 @@ export default function BookAppointment() {
                     name="appointmentTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Time</FormLabel>
+                        <FormLabel>{t.time}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select time" />
+                              <SelectValue placeholder={t.selectTime} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -342,7 +309,7 @@ export default function BookAppointment() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Booking..." : "Book Appointment"}
+                  {isLoading ? t.booking : t.bookAppointment}
                 </Button>
               </form>
             </Form>
