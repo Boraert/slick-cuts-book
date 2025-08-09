@@ -3,9 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { LogOut, Calendar, Users, Clock } from "lucide-react";
+import { LogOut, Calendar, Users, Clock, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 
@@ -25,11 +29,23 @@ interface Appointment {
 interface Barber {
   id: string;
   name: string;
+  is_active: boolean;
+}
+
+interface BarberAvailability {
+  id: string;
+  barber_id: string;
+  date: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
 }
 
 export default function AdminDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [availability, setAvailability] = useState<BarberAvailability[]>([]);
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -83,13 +99,14 @@ export default function AdminDashboard() {
       // Load barbers
       const { data: barbersData, error: barbersError } = await (supabase as any)
         .from("barbers")
-        .select("*")
-        .eq("is_active", true);
+        .select("*");
 
       if (barbersError) throw barbersError;
 
       setAppointments(appointmentsData || []);
       setBarbers(barbersData || []);
+      
+      await loadAvailability();
     } catch (error) {
       console.error("Error loading data:", error);
       toast({
@@ -99,6 +116,51 @@ export default function AdminDashboard() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadAvailability = async () => {
+    try {
+      const { data, error } = await (supabase as any)
+        .from("barber_availability")
+        .select("*")
+        .eq("date", selectedDate);
+
+      if (error) throw error;
+      setAvailability(data || []);
+    } catch (error) {
+      console.error("Error loading availability:", error);
+    }
+  };
+
+  const updateAvailability = async (barberId: string, isAvailable: boolean, startTime?: string, endTime?: string) => {
+    try {
+      const updateData: any = { is_available: isAvailable };
+      if (startTime) updateData.start_time = startTime;
+      if (endTime) updateData.end_time = endTime;
+
+      const { error } = await (supabase as any)
+        .from("barber_availability")
+        .upsert({
+          barber_id: barberId,
+          date: selectedDate,
+          ...updateData,
+        });
+
+      if (error) throw error;
+      
+      await loadAvailability();
+      toast({
+        title: "Updated",
+        description: "Barber availability updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating availability:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update availability.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -177,8 +239,15 @@ export default function AdminDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Tabs defaultValue="appointments" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="barbers">Barber Management</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="appointments" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
@@ -208,9 +277,9 @@ export default function AdminDashboard() {
               <div className="text-2xl font-bold">{appointments.length}</div>
             </CardContent>
           </Card>
-        </div>
+            </div>
 
-        {/* Appointments Table */}
+            {/* Appointments Table */}
         <Card>
           <CardHeader>
             <CardTitle>All Appointments</CardTitle>
@@ -272,7 +341,101 @@ export default function AdminDashboard() {
               )}
             </div>
           </CardContent>
-        </Card>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="barbers" className="space-y-6">
+            {/* Date Selector */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Barber Availability Management
+                </CardTitle>
+                <CardDescription>
+                  Manage barber working hours and availability for specific dates
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6">
+                  <Label htmlFor="date-select">Select Date</Label>
+                  <Input
+                    id="date-select"
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => {
+                      setSelectedDate(e.target.value);
+                      loadAvailability();
+                    }}
+                    className="max-w-xs"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  {barbers.map((barber) => {
+                    const barberAvail = availability.find(a => a.barber_id === barber.id);
+                    
+                    return (
+                      <Card key={barber.id} className="p-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                              <Users className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{barber.name}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {barber.is_active ? "Active" : "Inactive"}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor={`available-${barber.id}`}>Available</Label>
+                            <Switch
+                              id={`available-${barber.id}`}
+                              checked={barberAvail?.is_available ?? false}
+                              onCheckedChange={(checked) => 
+                                updateAvailability(barber.id, checked)
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        {barberAvail?.is_available && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor={`start-${barber.id}`}>Start Time</Label>
+                              <Input
+                                id={`start-${barber.id}`}
+                                type="time"
+                                value={barberAvail?.start_time || "09:00"}
+                                onChange={(e) => 
+                                  updateAvailability(barber.id, true, e.target.value, barberAvail?.end_time)
+                                }
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`end-${barber.id}`}>End Time</Label>
+                              <Input
+                                id={`end-${barber.id}`}
+                                type="time"
+                                value={barberAvail?.end_time || "18:00"}
+                                onChange={(e) => 
+                                  updateAvailability(barber.id, true, barberAvail?.start_time, e.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

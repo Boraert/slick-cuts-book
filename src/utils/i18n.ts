@@ -48,11 +48,25 @@ export interface Translations {
   emailAddress: string;
   preferredBarber: string;
   selectBarber: string;
+  selectDate: string;
   date: string;
   time: string;
   pickDate: string;
   selectTime: string;
   booking: string;
+  appointmentSummary: string;
+  customerDetails: string;
+  noAvailableSlots: string;
+  selectOptionsToSee: string;
+  openingHours: string;
+  monday: string;
+  tuesday: string;
+  wednesday: string;
+  thursday: string;
+  friday: string;
+  saturday: string;
+  sunday: string;
+  closed: string;
 
   // Booking confirmation
   bookingConfirmed: string;
@@ -74,8 +88,6 @@ export interface Translations {
 
   // Hours
   mondayFriday: string;
-  saturday: string;
-  sunday: string;
 
   // Footer
   professionalBarbershopFooter: string;
@@ -130,11 +142,25 @@ export const translations: Record<Language, Translations> = {
     emailAddress: 'Email Address',
     preferredBarber: 'Preferred Barber',
     selectBarber: 'Select a barber',
+    selectDate: 'Select Date',
     date: 'Date',
     time: 'Time',
     pickDate: 'Pick a date',
     selectTime: 'Select time',
     booking: 'Booking...',
+    appointmentSummary: 'Appointment Summary',
+    customerDetails: 'Customer Details',
+    noAvailableSlots: 'No available time slots for this date',
+    selectOptionsToSee: 'Select options to see summary',
+    openingHours: 'Opening Hours',
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday',
+    sunday: 'Sunday',
+    closed: 'Closed',
 
     // Booking confirmation
     bookingConfirmed: 'Booking Confirmed!',
@@ -156,8 +182,6 @@ export const translations: Record<Language, Translations> = {
 
     // Hours
     mondayFriday: 'Monday - Friday: 9:00 AM - 7:00 PM',
-    saturday: 'Saturday: 8:00 AM - 6:00 PM',
-    sunday: 'Sunday: 10:00 AM - 4:00 PM',
 
     // Footer
     professionalBarbershopFooter: 'Professional barbershop services with traditional craftsmanship and modern style in Copenhagen.',
@@ -211,11 +235,25 @@ export const translations: Record<Language, Translations> = {
     emailAddress: 'Email Adresse',
     preferredBarber: 'Foretrukken Barber',
     selectBarber: 'Vælg en barber',
+    selectDate: 'Vælg Dato',
     date: 'Dato',
     time: 'Tid',
     pickDate: 'Vælg en dato',
     selectTime: 'Vælg tid',
     booking: 'Booker...',
+    appointmentSummary: 'Aftale Oversigt',
+    customerDetails: 'Kunde Detaljer',
+    noAvailableSlots: 'Ingen ledige tider for denne dato',
+    selectOptionsToSee: 'Vælg muligheder for at se oversigt',
+    openingHours: 'Åbningstider',
+    monday: 'Mandag',
+    tuesday: 'Tirsdag',
+    wednesday: 'Onsdag',
+    thursday: 'Torsdag',
+    friday: 'Fredag',
+    saturday: 'Lørdag',
+    sunday: 'Søndag',
+    closed: 'Lukket',
 
     // Booking confirmation
     bookingConfirmed: 'Booking Bekræftet!',
@@ -237,8 +275,6 @@ export const translations: Record<Language, Translations> = {
 
     // Hours
     mondayFriday: 'Mandag - Fredag: 9:00 - 19:00',
-    saturday: 'Lørdag: 8:00 - 18:00',
-    sunday: 'Søndag: 10:00 - 16:00',
 
     // Footer
     professionalBarbershopFooter: 'Professionelle barbertjenester med traditionelt håndværk og moderne stil i København.',
@@ -292,11 +328,25 @@ export const translations: Record<Language, Translations> = {
     emailAddress: 'عنوان البريد الإلكتروني',
     preferredBarber: 'الحلاق المفضل',
     selectBarber: 'اختر حلاقاً',
+    selectDate: 'اختر التاريخ',
     date: 'التاريخ',
     time: 'الوقت',
     pickDate: 'اختر تاريخاً',
     selectTime: 'اختر الوقت',
     booking: 'جاري الحجز...',
+    appointmentSummary: 'ملخص الموعد',
+    customerDetails: 'بيانات العميل',
+    noAvailableSlots: 'لا توجد أوقات متاحة لهذا التاريخ',
+    selectOptionsToSee: 'اختر الخيارات لرؤية الملخص',
+    openingHours: 'ساعات العمل',
+    monday: 'الإثنين',
+    tuesday: 'الثلاثاء',
+    wednesday: 'الأربعاء',
+    thursday: 'الخميس',
+    friday: 'الجمعة',
+    saturday: 'السبت',
+    sunday: 'الأحد',
+    closed: 'مغلق',
 
     // Booking confirmation
     bookingConfirmed: 'تم تأكيد الحجز!',
@@ -318,8 +368,6 @@ export const translations: Record<Language, Translations> = {
 
     // Hours
     mondayFriday: 'الاثنين - الجمعة: ٩:٠٠ ص - ٧:٠٠ م',
-    saturday: 'السبت: ٨:٠٠ ص - ٦:٠٠ م',
-    sunday: 'الأحد: ١٠:٠٠ ص - ٤:٠٠ م',
 
     // Footer
     professionalBarbershopFooter: 'خدمات حلاقة احترافية مع الحرفية التقليدية والأناقة الحديثة في كوبنهاغن.',
