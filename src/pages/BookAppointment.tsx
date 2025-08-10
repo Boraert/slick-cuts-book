@@ -127,6 +127,31 @@ export default function BookAppointment() {
     setIsLoading(true);
     
     try {
+      // Check if the time slot is already booked
+      const { data: existingAppointment, error: checkError } = await (supabase as any)
+        .from("appointments")
+        .select("id")
+        .eq("barber_id", data.barberId)
+        .eq("appointment_date", data.appointmentDate)
+        .eq("appointment_time", data.appointmentTime)
+        .eq("status", "confirmed")
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existingAppointment) {
+        toast({
+          title: "Time Slot Unavailable",
+          description: "This time slot has already been booked. Please select another time.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Insert the new appointment
       const { error } = await (supabase as any)
         .from("appointments")
         .insert({
@@ -144,10 +169,28 @@ export default function BookAppointment() {
         throw error;
       }
 
+      // Send notification
+      try {
+        const selectedBarber = barbers.find(b => b.id === data.barberId);
+        await supabase.functions.invoke('send-booking-notification', {
+          body: {
+            customerName: data.customerName,
+            customerEmail: data.customerEmail,
+            customerPhone: data.customerPhone,
+            appointmentDate: data.appointmentDate,
+            appointmentTime: data.appointmentTime,
+            barberName: selectedBarber?.name || 'Your preferred barber',
+          },
+        });
+      } catch (notificationError) {
+        console.error("Notification error:", notificationError);
+        // Don't fail the booking if notification fails
+      }
+
       setIsSubmitted(true);
       toast({
         title: "Booking Confirmed!",
-        description: "Your appointment has been successfully booked.",
+        description: "Your appointment has been successfully booked. Check your email and phone for confirmation.",
       });
     } catch (error) {
       console.error("Booking error:", error);
@@ -261,7 +304,15 @@ export default function BookAppointment() {
                       className="h-auto p-4 flex items-center gap-3"
                       onClick={() => handleBarberSelect(barber.id)}
                     >
-                      <User className="h-5 w-5" />
+                      {barber.photo_path ? (
+                        <img 
+                          src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
+                          alt={barber.name}
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="h-5 w-5" />
+                      )}
                       <span>{barber.name}</span>
                     </Button>
                   ))}
@@ -416,7 +467,18 @@ export default function BookAppointment() {
               <CardContent className="space-y-4">
                 {selectedBarber && (
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                    <User className="h-5 w-5 text-primary" />
+                    {(() => {
+                      const barber = barbers.find(b => b.id === selectedBarber);
+                      return barber?.photo_path ? (
+                        <img 
+                          src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
+                          alt={barber.name}
+                          className="h-8 w-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="h-5 w-5 text-primary" />
+                      );
+                    })()}
                     <div>
                       <p className="font-medium">{barbers.find(b => b.id === selectedBarber)?.name}</p>
                       <p className="text-sm text-muted-foreground">{t.preferredBarber}</p>
