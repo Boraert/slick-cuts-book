@@ -70,7 +70,7 @@ export default function BarberPhotoUpload({
       }
 
       // Update barber record with new photo path
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('barbers')
         .update({ photo_path: fileName })
         .eq('id', barberId);
@@ -112,7 +112,7 @@ export default function BarberPhotoUpload({
       }
 
       // Update barber record to remove photo path
-      const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
         .from('barbers')
         .update({ photo_path: null })
         .eq('id', barberId);

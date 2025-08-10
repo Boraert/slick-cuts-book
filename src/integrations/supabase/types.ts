@@ -135,20 +135,70 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          photo_path: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           is_active?: boolean
           name: string
+          photo_path?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           is_active?: boolean
           name?: string
+          photo_path?: string | null
         }
         Relationships: []
+      }
+      bookings: {
+        Row: {
+          barber_id: string
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          end_time: string
+          id: string
+          notes: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          start_time: string
+        }
+        Insert: {
+          barber_id: string
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          end_time: string
+          id?: string
+          notes?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          start_time: string
+        }
+        Update: {
+          barber_id?: string
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          end_time?: string
+          id?: string
+          notes?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
