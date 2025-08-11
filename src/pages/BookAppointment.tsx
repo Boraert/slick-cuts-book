@@ -21,6 +21,9 @@ const bookingSchema = z.object({
   barberId: z.string().min(1, "Please select a barber"),
   appointmentDate: z.string().min(1, "Please select a date"),
   appointmentTime: z.string().min(1, "Please select a time"),
+  notificationPreference: z.enum(["email", "sms"], {
+    required_error: "Please select how you'd like to receive notifications",
+  }),
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
@@ -32,6 +35,7 @@ export default function BookAppointment() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [allTimeSlots, setAllTimeSlots] = useState<string[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -103,6 +107,7 @@ export default function BookAppointment() {
       const booked = appointments?.map((apt: any) => apt.appointment_time) || [];
       const available = slots.filter(slot => !booked.includes(slot));
       
+      setAllTimeSlots(slots);
       setAvailableSlots(available);
       setBookedSlots(booked);
     } catch (error) {
@@ -163,6 +168,7 @@ export default function BookAppointment() {
           appointment_date: data.appointmentDate,
           appointment_time: data.appointmentTime,
           status: "confirmed",
+          notification_preference: data.notificationPreference,
         });
 
       if (error) {
@@ -180,6 +186,7 @@ export default function BookAppointment() {
             appointmentDate: data.appointmentDate,
             appointmentTime: data.appointmentTime,
             barberName: selectedBarber?.name || 'Your preferred barber',
+            notificationPreference: data.notificationPreference,
           },
         });
       } catch (notificationError) {
@@ -369,18 +376,30 @@ export default function BookAppointment() {
               <CardContent>
                 {currentStep >= 3 && (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {availableSlots.map((time) => (
-                      <Button
-                        key={time}
-                        variant={form.getValues("appointmentTime") === time ? "default" : "outline"}
-                        className="h-12 flex items-center gap-2"
-                        onClick={() => handleTimeSelect(time)}
-                      >
-                        <Clock className="h-4 w-4" />
-                        {time}
-                      </Button>
-                    ))}
-                    {availableSlots.length === 0 && selectedDate && (
+                    {allTimeSlots.map((time) => {
+                      const isAvailable = availableSlots.includes(time);
+                      const isSelected = form.getValues("appointmentTime") === time;
+                      
+                      return (
+                        <Button
+                          key={time}
+                          variant={isSelected ? "default" : "outline"}
+                          className={`h-12 flex items-center gap-2 ${
+                            !isAvailable 
+                              ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed hover:bg-red-50" 
+                              : isAvailable && !isSelected 
+                                ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100" 
+                                : ""
+                          }`}
+                          onClick={() => isAvailable && handleTimeSelect(time)}
+                          disabled={!isAvailable}
+                        >
+                          <Clock className="h-4 w-4" />
+                          {time}
+                        </Button>
+                      );
+                    })}
+                    {allTimeSlots.length === 0 && selectedDate && (
                       <div className="col-span-full text-center py-8 text-muted-foreground">
                         {t.noAvailableSlots || "No available time slots for this date"}
                       </div>
@@ -443,6 +462,28 @@ export default function BookAppointment() {
                             <FormControl>
                               <Input placeholder="john@example.com" type="email" {...field} />
                             </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="notificationPreference"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t.notificationPreference || "How would you like to receive notifications?"}</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder={t.selectNotificationMethod || "Select notification method"} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="email">{t.email || "Email"}</SelectItem>
+                                <SelectItem value="sms">{t.sms || "SMS"}</SelectItem>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
