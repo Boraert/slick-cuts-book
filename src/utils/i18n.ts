@@ -75,6 +75,54 @@ export interface Translations {
   appointmentDetailsTitle: string;
   bookAnother: string;
   returnHome: string;
+  notificationPreference: string;
+  selectNotificationMethod: string;
+  sms: string;
+  
+  // Services page
+  mostPopular: string;
+  whatsIncluded: string;
+  bookThisService: string;
+  eliteCutsExperience: string;
+  detailedConsultation: string;
+  premiumProducts: string;
+  expertCraftsmanship: string;
+  finestGroomingProducts: string;
+  skilledBarbers: string;
+  bookAppointmentToday: string;
+  hairConsultation: string;
+  shampooConditioning: string;
+  precisionCutting: string;
+  styling: string;
+  hotTowelFinish: string;
+  beardAssessment: string;
+  precisionTrimming: string;
+  edgeCleanup: string;
+  mustacheStyling: string;
+  beardOilApplication: string;
+  everythingFromServices: string;
+  hotTowelTreatment: string;
+  faceCleansing: string;
+  aftershaveApplication: string;
+  stylingConsultation: string;
+  
+  // Contact page
+  contactUs: string;
+  getInTouchDesc: string;
+  getInTouch: string;
+  visitUsDesc: string;
+  findUs: string;
+  locationDesc: string;
+  interactiveMap: string;
+  mapIntegration: string;
+  whyVisitEliteCuts: string;
+  convenientLocation: string;
+  centrallyLocated: string;
+  flexibleHours: string;
+  openSevenDays: string;
+  professionalService: string;
+  expertBarbersDedicated: string;
+  haveQuestions: string;
 
   // Location and contact
   location: string;
@@ -166,9 +214,57 @@ export const translations: Record<Language, Translations> = {
     bookingConfirmed: 'Booking Confirmed!',
     appointmentSuccessfullyBooked: 'Your appointment has been successfully booked. We will send you a confirmation email shortly.',
     confirmationEmailSent: '',
-    appointmentDetailsTitle: 'Appointment Details:',
+    appointmentDetailsTitle: 'Appointment Details',
     bookAnother: 'Book Another Appointment',
     returnHome: 'Return to Home',
+    notificationPreference: 'How would you like to receive notifications?',
+    selectNotificationMethod: 'Select notification method',
+    sms: 'SMS',
+    
+    // Services page
+    mostPopular: 'Most Popular',
+    whatsIncluded: "What's Included:",
+    bookThisService: 'Book This Service',
+    eliteCutsExperience: 'The Elite Cuts Experience',
+    detailedConsultation: 'Every service includes a detailed consultation to understand your style preferences and lifestyle needs. Our experienced barbers use only premium products and tools to ensure the best results.',
+    premiumProducts: 'Premium Products',
+    expertCraftsmanship: 'Expert Craftsmanship',
+    finestGroomingProducts: 'We use only the finest grooming products from trusted brands to ensure your hair and skin receive the best care possible.',
+    skilledBarbers: 'Our skilled barbers have years of experience and stay updated with the latest trends and techniques in men\'s grooming.',
+    bookAppointmentToday: 'Book Your Appointment Today',
+    hairConsultation: 'Hair consultation',
+    shampooConditioning: 'Shampoo & conditioning',
+    precisionCutting: 'Precision cutting',
+    styling: 'Styling',
+    hotTowelFinish: 'Hot towel finish',
+    beardAssessment: 'Beard assessment',
+    precisionTrimming: 'Precision trimming',
+    edgeCleanup: 'Edge cleanup',
+    mustacheStyling: 'Mustache styling',
+    beardOilApplication: 'Beard oil application',
+    everythingFromServices: 'Everything from haircut & beard trim',
+    hotTowelTreatment: 'Hot towel treatment',
+    faceCleansing: 'Face cleansing',
+    aftershaveApplication: 'Aftershave application',
+    stylingConsultation: 'Styling consultation',
+    
+    // Contact page
+    contactUs: 'Contact Us',
+    getInTouchDesc: 'Get in touch with Elite Cuts. We\'re here to help with any questions or to schedule your next appointment.',
+    getInTouch: 'Get In Touch',
+    visitUsDesc: 'Visit us at our barbershop or reach out through any of the following methods. We look forward to serving you!',
+    findUs: 'Find Us',
+    locationDesc: 'Located in the heart of the city, easily accessible by car or public transport.',
+    interactiveMap: 'Interactive Map',
+    mapIntegration: 'Map integration would go here',
+    whyVisitEliteCuts: 'Why Visit Elite Cuts?',
+    convenientLocation: 'Convenient Location',
+    centrallyLocated: 'Centrally located with easy parking and public transport access.',
+    flexibleHours: 'Flexible Hours',
+    openSevenDays: 'Open 7 days a week with extended hours to fit your schedule.',
+    professionalService: 'Professional Service',
+    expertBarbersDedicated: 'Expert barbers dedicated to providing the best grooming experience.',
+    haveQuestions: 'Have questions about our services or want to schedule an appointment? Don\'t hesitate to reach out - we\'re here to help!',
 
     // Location and contact
     location: 'Location',
@@ -259,9 +355,57 @@ export const translations: Record<Language, Translations> = {
     bookingConfirmed: 'Booking Bekræftet!',
     appointmentSuccessfullyBooked: 'Din tid er blevet booket med succes. Vi sender dig en bekraeftelses-email snart.',
     confirmationEmailSent: '',
-    appointmentDetailsTitle: 'Tidsdetaljer:',
-    bookAnother: 'Book Endnu En Tid',
+    appointmentDetailsTitle: 'Aftaledetaljer',
+    bookAnother: 'Book Endnu en Aftale',
     returnHome: 'Tilbage til Hjem',
+    notificationPreference: 'Hvordan vil du gerne modtage notifikationer?',
+    selectNotificationMethod: 'Vælg notifikationsmetode',
+    sms: 'SMS',
+    
+    // Services page
+    mostPopular: 'Mest Populære',
+    whatsIncluded: 'Hvad er inkluderet:',
+    bookThisService: 'Book denne service',
+    eliteCutsExperience: 'Elite Cuts Oplevelsen',
+    detailedConsultation: 'Hver service inkluderer en detaljeret konsultation for at forstå dine stilpræferencer og livsstilsbehov. Vores erfarne barberer bruger kun premium produkter og værktøjer for at sikre de bedste resultater.',
+    premiumProducts: 'Premium Produkter',
+    expertCraftsmanship: 'Ekspert Håndværk',
+    finestGroomingProducts: 'Vi bruger kun de fineste grooming produkter fra betroede brands for at sikre, at dit hår og hud får den bedst mulige pleje.',
+    skilledBarbers: 'Vores dygtige barberer har mange års erfaring og holder sig opdateret med de nyeste trends og teknikker inden for herrefrisering.',
+    bookAppointmentToday: 'Book din aftale i dag',
+    hairConsultation: 'Hår konsultation',
+    shampooConditioning: 'Shampoo og balsam',
+    precisionCutting: 'Præcisionsklipning',
+    styling: 'Styling',
+    hotTowelFinish: 'Varmt håndklæde finish',
+    beardAssessment: 'Skægvurdering',
+    precisionTrimming: 'Præcisionstrimning',
+    edgeCleanup: 'Kant oprydning',
+    mustacheStyling: 'Overskæg styling',
+    beardOilApplication: 'Skægolie påføring',
+    everythingFromServices: 'Alt fra hårklipning og skægtrimning',
+    hotTowelTreatment: 'Varmt håndklæde behandling',
+    faceCleansing: 'Ansigtsrensning',
+    aftershaveApplication: 'Aftershave påføring',
+    stylingConsultation: 'Styling konsultation',
+    
+    // Contact page
+    contactUs: 'Kontakt Os',
+    getInTouchDesc: 'Kom i kontakt med Elite Cuts. Vi er her for at hjælpe med eventuelle spørgsmål eller for at planlægge din næste aftale.',
+    getInTouch: 'Kom i Kontakt',
+    visitUsDesc: 'Besøg os i vores barbershop eller kontakt os gennem en af følgende metoder. Vi ser frem til at betjene dig!',
+    findUs: 'Find Os',
+    locationDesc: 'Beliggende i hjertet af byen, let tilgængelig med bil eller offentlig transport.',
+    interactiveMap: 'Interaktivt Kort',
+    mapIntegration: 'Kortintegration ville være her',
+    whyVisitEliteCuts: 'Hvorfor Besøge Elite Cuts?',
+    convenientLocation: 'Bekvem Placering',
+    centrallyLocated: 'Centralt beliggende med let parkering og offentlig transport adgang.',
+    flexibleHours: 'Fleksible Åbningstider',
+    openSevenDays: 'Åben 7 dage om ugen med udvidede åbningstider for at passe til din tidsplan.',
+    professionalService: 'Professionel Service',
+    expertBarbersDedicated: 'Ekspert barberer dedikeret til at give den bedste grooming oplevelse.',
+    haveQuestions: 'Har du spørgsmål om vores tjenester eller vil du planlægge en aftale? Tøv ikke med at kontakte os - vi er her for at hjælpe!',
 
     // Location and contact
     location: 'Beliggenhed',
@@ -352,9 +496,57 @@ export const translations: Record<Language, Translations> = {
     bookingConfirmed: 'تم تأكيد الحجز!',
     appointmentSuccessfullyBooked: 'تم حجز موعدك بنجاح. سنرسل لك بريدا الكترونيا للتأكيد قريبا.',
     confirmationEmailSent: '',
-    appointmentDetailsTitle: 'تفاصيل الموعد:',
-    bookAnother: 'احجز موعداً آخر',
+    appointmentDetailsTitle: 'تفاصيل الموعد',
+    bookAnother: 'احجز موعد آخر',
     returnHome: 'العودة للرئيسية',
+    notificationPreference: 'كيف تريد استقبال الإشعارات؟',
+    selectNotificationMethod: 'اختر طريقة الإشعار',
+    sms: 'رسائل نصية',
+    
+    // Services page
+    mostPopular: 'الأكثر شعبية',
+    whatsIncluded: 'ما هو مشمول:',
+    bookThisService: 'احجز هذه الخدمة',
+    eliteCutsExperience: 'تجربة إليت كتس',
+    detailedConsultation: 'تتضمن كل خدمة استشارة مفصلة لفهم تفضيلات أسلوبك واحتياجات نمط حياتك. يستخدم حلاقونا ذوو الخبرة فقط المنتجات والأدوات الممتازة لضمان أفضل النتائج.',
+    premiumProducts: 'منتجات ممتازة',
+    expertCraftsmanship: 'حرفية خبير',
+    finestGroomingProducts: 'نحن نستخدم فقط أفضل منتجات العناية من العلامات التجارية الموثوقة لضمان حصول شعرك وبشرتك على أفضل رعاية ممكنة.',
+    skilledBarbers: 'يتمتع حلاقونا المهرة بسنوات من الخبرة ويواكبون أحدث الاتجاهات والتقنيات في العناية الرجالية.',
+    bookAppointmentToday: 'احجز موعدك اليوم',
+    hairConsultation: 'استشارة الشعر',
+    shampooConditioning: 'الشامبو والبلسم',
+    precisionCutting: 'قص دقيق',
+    styling: 'تصفيف',
+    hotTowelFinish: 'منشفة ساخنة',
+    beardAssessment: 'تقييم اللحية',
+    precisionTrimming: 'تشذيب دقيق',
+    edgeCleanup: 'تنظيف الحواف',
+    mustacheStyling: 'تصفيف الشارب',
+    beardOilApplication: 'تطبيق زيت اللحية',
+    everythingFromServices: 'كل شيء من قص الشعر وتشذيب اللحية',
+    hotTowelTreatment: 'علاج المنشفة الساخنة',
+    faceCleansing: 'تنظيف الوجه',
+    aftershaveApplication: 'تطبيق ما بعد الحلاقة',
+    stylingConsultation: 'استشارة التصفيف',
+    
+    // Contact page
+    contactUs: 'اتصل بنا',
+    getInTouchDesc: 'تواصل مع إليت كتس. نحن هنا للمساعدة في أي أسئلة أو لجدولة موعدك التالي.',
+    getInTouch: 'تواصل معنا',
+    visitUsDesc: 'قم بزيارتنا في محل الحلاقة أو تواصل معنا من خلال أي من الطرق التالية. نتطلع لخدمتك!',
+    findUs: 'اعثر علينا',
+    locationDesc: 'يقع في قلب المدينة، سهل الوصول بالسيارة أو وسائل النقل العام.',
+    interactiveMap: 'خريطة تفاعلية',
+    mapIntegration: 'تكامل الخريطة سيكون هنا',
+    whyVisitEliteCuts: 'لماذا زيارة إليت كتس؟',
+    convenientLocation: 'موقع مناسب',
+    centrallyLocated: 'يقع في وسط المدينة مع سهولة وقوف السيارات ووصول وسائل النقل العام.',
+    flexibleHours: 'ساعات مرنة',
+    openSevenDays: 'مفتوح 7 أيام في الأسبوع مع ساعات ممتدة لتناسب جدولك الزمني.',
+    professionalService: 'خدمة مهنية',
+    expertBarbersDedicated: 'حلاقون خبراء مكرسون لتقديم أفضل تجربة عناية.',
+    haveQuestions: 'هل لديك أسئلة حول خدماتنا أو تريد جدولة موعد؟ لا تتردد في التواصل - نحن هنا للمساعدة!',
 
     // Location and contact
     location: 'الموقع',

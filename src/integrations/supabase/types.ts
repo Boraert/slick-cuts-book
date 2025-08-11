@@ -48,6 +48,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id: string
+          notification_preference: string | null
           service_type: Database["public"]["Enums"]["service_type"] | null
           status: string
           updated_at: string
@@ -61,6 +62,7 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id?: string
+          notification_preference?: string | null
           service_type?: Database["public"]["Enums"]["service_type"] | null
           status?: string
           updated_at?: string
@@ -74,6 +76,7 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           id?: string
+          notification_preference?: string | null
           service_type?: Database["public"]["Enums"]["service_type"] | null
           status?: string
           updated_at?: string
