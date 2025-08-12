@@ -339,25 +339,18 @@ export default function BookAppointment() {
               </CardHeader>
               <CardContent>
                 {currentStep >= 2 && (
-                   <div className="grid grid-cols-7 gap-2 max-h-80 overflow-y-auto">
-                    {Array.from({ length: 14 }, (_, i) => {
-                      const date = new Date();
-                      date.setDate(date.getDate() + i + 1);
-                      const dateStr = format(date, "yyyy-MM-dd");
-                      const isSelected = selectedDate === dateStr;
-                      
-                      return (
-                        <Button
-                          key={dateStr}
-                          variant={isSelected ? "default" : "outline"}
-                          className="h-16 flex flex-col p-2"
-                          onClick={() => handleDateSelect(dateStr)}
-                        >
-                          <span className="text-xs">{format(date, "EEE", { locale: getDateLocale() })}</span>
-                          <span className="font-bold">{format(date, "d")}</span>
-                        </Button>
-                      );
-                    })}
+                  <div>
+                    <Input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => handleDateSelect(e.target.value)}
+                      min={format(new Date(), "yyyy-MM-dd")}
+                      max={format(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd")}
+                      className="w-full"
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      You can book appointments up to one year in advance
+                    </p>
                   </div>
                 )}
               </CardContent>
