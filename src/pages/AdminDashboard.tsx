@@ -73,6 +73,25 @@ export default function AdminDashboard() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/admin/login");
+      return;
+    }
+
+    // Verify admin access for the current user
+    const { data: adminUser, error } = await supabase
+      .from("admin_users")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .eq("is_active", true)
+      .single();
+
+    if (error || !adminUser) {
+      await supabase.auth.signOut();
+      navigate("/admin/login");
+      toast({
+        title: "Access Denied",
+        description: "You don't have admin access to this system.",
+        variant: "destructive",
+      });
     }
   };
 

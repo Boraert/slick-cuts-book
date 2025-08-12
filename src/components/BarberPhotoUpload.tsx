@@ -138,9 +138,10 @@ export default function BarberPhotoUpload({
     }
   };
 
-  const getPhotoUrl = () => {
-    if (!currentPhotoPath) return null;
-    return supabase.storage.from('barber-photos').getPublicUrl(currentPhotoPath).data.publicUrl;
+  const getPhotoUrl = (photoPath?: string) => {
+    const path = photoPath || currentPhotoPath;
+    if (!path) return null;
+    return `${supabase.storage.from('barber-photos').getPublicUrl(path).data.publicUrl}?${Date.now()}`;
   };
 
   return (
@@ -160,9 +161,10 @@ export default function BarberPhotoUpload({
           {currentPhotoPath ? (
             <div className="relative">
               <img
-                src={getPhotoUrl()!}
+                src={getPhotoUrl(currentPhotoPath)!}
                 alt={barberName}
                 className="h-32 w-32 rounded-full object-cover border-4 border-border"
+                key={currentPhotoPath}
               />
               <Button
                 size="sm"

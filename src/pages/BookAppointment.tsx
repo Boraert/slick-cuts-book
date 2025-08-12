@@ -339,7 +339,7 @@ export default function BookAppointment() {
               </CardHeader>
               <CardContent>
                 {currentStep >= 2 && (
-                  <div className="grid grid-cols-7 gap-2">
+                   <div className="grid grid-cols-7 gap-2 max-h-80 overflow-y-auto">
                     {Array.from({ length: 14 }, (_, i) => {
                       const date = new Date();
                       date.setDate(date.getDate() + i + 1);
@@ -374,36 +374,32 @@ export default function BookAppointment() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {currentStep >= 3 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {allTimeSlots.map((time) => {
-                      const isAvailable = availableSlots.includes(time);
-                      const isSelected = form.getValues("appointmentTime") === time;
+                 {currentStep >= 3 && (
+                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                     {availableSlots.map((time) => {
+                       const isSelected = form.getValues("appointmentTime") === time;
                       
-                      return (
-                        <Button
-                          key={time}
-                          variant={isSelected ? "default" : "outline"}
-                          className={`h-12 flex items-center gap-2 ${
-                            !isAvailable 
-                              ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed hover:bg-red-50" 
-                              : isAvailable && !isSelected 
-                                ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100" 
-                                : ""
-                          }`}
-                          onClick={() => isAvailable && handleTimeSelect(time)}
-                          disabled={!isAvailable}
-                        >
-                          <Clock className="h-4 w-4" />
-                          {time}
-                        </Button>
-                      );
+                       return (
+                         <Button
+                           key={time}
+                           variant={isSelected ? "default" : "outline"}
+                           className={`h-12 flex items-center gap-2 ${
+                             !isSelected 
+                               ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100" 
+                               : ""
+                           }`}
+                           onClick={() => handleTimeSelect(time)}
+                         >
+                           <Clock className="h-4 w-4" />
+                           {time}
+                         </Button>
+                       );
                     })}
-                    {allTimeSlots.length === 0 && selectedDate && (
-                      <div className="col-span-full text-center py-8 text-muted-foreground">
-                        {t.noAvailableSlots || "No available time slots for this date"}
-                      </div>
-                    )}
+                     {availableSlots.length === 0 && selectedDate && (
+                       <div className="col-span-full text-center py-8 text-muted-foreground">
+                         {t.noAvailableSlots || "No available time slots for this date"}
+                       </div>
+                     )}
                   </div>
                 )}
               </CardContent>
