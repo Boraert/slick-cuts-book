@@ -106,6 +106,37 @@ export interface Translations {
   aftershaveApplication: string;
   stylingConsultation: string;
   
+  // Add after existing service types in the Translations interface
+mensHaircut: string;
+mensHaircutDesc: string;
+mensHaircutPrecisionCut: string;
+mensHaircutStyling: string;
+mensHaircutConsultation: string;
+mensHaircutCleanFinish: string;
+
+childHaircut: string;
+childHaircutDesc: string;
+childHaircutKidsFriendly: string;
+childHaircutQuickCut: string;
+childHaircutStyling: string;
+
+pensionerHaircut: string;
+pensionerHaircutDesc: string;
+pensionerHaircutPrecisionCut: string;
+pensionerHaircutAffordablePrice: string;
+pensionerHaircutStyling: string;
+
+beardTrimShaping: string;
+beardTrimHotTowel: string;
+beardTrimAftershave: string;
+
+haircutAndBeard: string;
+haircutAndBeardDesc: string;
+haircutAndBeardCombo: string;
+haircutAndBeardHotTowel: string;
+haircutAndBeardFaceCleansing: string;
+haircutAndBeardAftershave: string;
+haircutAndBeardConsultation: string;
   // Contact page
   contactUs: string;
   getInTouchDesc: string;
@@ -247,6 +278,37 @@ export const translations: Record<Language, Translations> = {
     faceCleansing: 'Face cleansing',
     aftershaveApplication: 'Aftershave application',
     stylingConsultation: 'Styling consultation',
+    // New Services
+  mensHaircut: 'Men\'s Haircut',
+  mensHaircutDesc: 'Precision men\'s haircut with styling',
+  mensHaircutPrecisionCut: 'Precision haircut',
+  mensHaircutStyling: 'Styling included',
+  mensHaircutConsultation: 'Style consultation',
+  mensHaircutCleanFinish: 'Clean finish with neckline trim',
+
+  childHaircut: 'Children\'s Haircut (under 12)',
+  childHaircutDesc: 'Gentle haircut for children under 12 years old',
+  childHaircutKidsFriendly: 'Child-friendly service',
+  childHaircutQuickCut: 'Quick and gentle haircut',
+  childHaircutStyling: 'Basic styling included',
+
+  pensionerHaircut: 'Pensioner Haircut',
+  pensionerHaircutDesc: 'Affordable, neat haircut for pensioners',
+  pensionerHaircutPrecisionCut: 'Neat and tidy haircut',
+  pensionerHaircutAffordablePrice: 'Special pensioner price',
+  pensionerHaircutStyling: 'Basic styling included',
+
+  beardTrimShaping: 'Beard shaping',
+  beardTrimHotTowel: 'Hot towel option',
+  beardTrimAftershave: 'Aftershave application',
+
+  haircutAndBeard: 'Haircut & Beard Trim',
+  haircutAndBeardDesc: 'Full grooming service for hair and beard',
+  haircutAndBeardCombo: 'Haircut and beard trim',
+  haircutAndBeardHotTowel: 'Hot towel treatment',
+  haircutAndBeardFaceCleansing: 'Face cleansing',
+  haircutAndBeardAftershave: 'Aftershave application',
+  haircutAndBeardConsultation: 'Styling consultation',
     
     // Contact page
     contactUs: 'Contact Us',
@@ -272,9 +334,9 @@ export const translations: Record<Language, Translations> = {
     denmark: 'Denmark',
     contactInfo: 'Contact Info',
     hours: 'Hours',
-    address: 'Nærum Hovedgade 52, 2850 Nærum',
+    address: 'Nørrebrogade 123, 2200 Copenhagen N',
     phone: 'Phone: +45 12 34 56 78',
-    email: 'Email: info@frisørnærum.dk',
+    email: 'Email: info@elitecuts.dk',
 
     // Hours
     mondayFriday: 'Monday - Friday: 9:00 AM - 7:00 PM',
@@ -314,6 +376,36 @@ export const translations: Record<Language, Translations> = {
     expertBarbersDesc: 'Erfarne professionelle med års ekspertise',
     premiumService: 'Premium Service',
     premiumServiceDesc: 'Højkvalitets værktøj og premium produkter',
+    mensHaircut: 'Herreklip',
+  mensHaircutDesc: 'Præcisionsklipning til mænd med styling',
+  mensHaircutPrecisionCut: 'Præcisionsklip',
+  mensHaircutStyling: 'Styling inkluderet',
+  mensHaircutConsultation: 'Styling konsultation',
+  mensHaircutCleanFinish: 'Ren afslutning med nakke trim',
+
+  childHaircut: 'Børneklip (under 12 år)',
+  childHaircutDesc: 'Skånsom klipning til børn under 12 år',
+  childHaircutKidsFriendly: 'Børnevenlig service',
+  childHaircutQuickCut: 'Hurtig og skånsom klipning',
+  childHaircutStyling: 'Basis styling inkluderet',
+
+  pensionerHaircut: 'Pensionistklip',
+  pensionerHaircutDesc: 'Prisvenlig og pæn klipning til pensionister',
+  pensionerHaircutPrecisionCut: 'Pæn og ordentlig klipning',
+  pensionerHaircutAffordablePrice: 'Særlig pensionistpris',
+  pensionerHaircutStyling: 'Basis styling inkluderet',
+
+  beardTrimShaping: 'Skægformning',
+  beardTrimHotTowel: 'Mulighed for varmt håndklæde',
+  beardTrimAftershave: 'Aftershave påføring',
+
+  haircutAndBeard: 'Klip & Skæg',
+  haircutAndBeardDesc: 'Fuld grooming service til hår og skæg',
+  haircutAndBeardCombo: 'Klipning og skægtrimning',
+  haircutAndBeardHotTowel: 'Varmt håndklæde behandling',
+  haircutAndBeardFaceCleansing: 'Ansigtsrensning',
+  haircutAndBeardAftershave: 'Aftershave påføring',
+  haircutAndBeardConsultation: 'Styling konsultation',
 
     // Service types
     classicHaircut: 'Klassisk Klipning',
@@ -413,9 +505,9 @@ export const translations: Record<Language, Translations> = {
     denmark: 'Danmark',
     contactInfo: 'Kontakt Info',
     hours: 'Åbningstider',
-    address: 'Nærum Hovedgade 52, 2850 Nærum',
+    address: 'Nørrebrogade 123, 2200 København N',
     phone: 'Telefon: +45 12 34 56 78',
-    email: 'Email: info@frisørnærum.dk',
+    email: 'Email: info@elitecuts.dk',
 
     // Hours
     mondayFriday: 'Mandag - Fredag: 9:00 - 19:00',
@@ -455,6 +547,36 @@ export const translations: Record<Language, Translations> = {
     expertBarbersDesc: 'محترفون ذوو خبرة مع سنوات من الإتقان',
     premiumService: 'خدمة مميزة',
     premiumServiceDesc: 'أدوات عالية الجودة ومنتجات مميزة',
+     mensHaircut: 'قص شعر للرجال',
+  mensHaircutDesc: 'قص شعر دقيق مع تصفيف',
+  mensHaircutPrecisionCut: 'قص دقيق',
+  mensHaircutStyling: 'يشمل التصفيف',
+  mensHaircutConsultation: 'استشارة التصفيف',
+  mensHaircutCleanFinish: 'تشطيب نظيف مع تهذيب الرقبة',
+
+  childHaircut: 'قص شعر للأطفال (أقل من 12 سنة)',
+  childHaircutDesc: 'قص شعر لطيف للأطفال أقل من 12 سنة',
+  childHaircutKidsFriendly: 'خدمة مناسبة للأطفال',
+  childHaircutQuickCut: 'قص سريع ولطيف',
+  childHaircutStyling: 'يشمل التصفيف الأساسي',
+
+  pensionerHaircut: 'قص شعر للمتقاعدين',
+  pensionerHaircutDesc: 'قص أنيق وبسعر مناسب للمتقاعدين',
+  pensionerHaircutPrecisionCut: 'قص مرتب وأنيق',
+  pensionerHaircutAffordablePrice: 'سعر خاص للمتقاعدين',
+  pensionerHaircutStyling: 'يشمل التصفيف الأساسي',
+
+  beardTrimShaping: 'تشكيل اللحية',
+  beardTrimHotTowel: 'خيار المنشفة الساخنة',
+  beardTrimAftershave: 'تطبيق ما بعد الحلاقة',
+
+  haircutAndBeard: 'قص شعر وتشذيب اللحية',
+  haircutAndBeardDesc: 'خدمة متكاملة للشعر واللحية',
+  haircutAndBeardCombo: 'قص الشعر وتشذيب اللحية',
+  haircutAndBeardHotTowel: 'علاج بالمنشفة الساخنة',
+  haircutAndBeardFaceCleansing: 'تنظيف الوجه',
+  haircutAndBeardAftershave: 'تطبيق ما بعد الحلاقة',
+  haircutAndBeardConsultation: 'استشارة التصفيف',
 
     // Service types
     classicHaircut: 'قصة شعر كلاسيكية',
@@ -554,7 +676,7 @@ export const translations: Record<Language, Translations> = {
     denmark: 'الدنمارك',
     contactInfo: 'معلومات الاتصال',
     hours: 'ساعات العمل',
-    address: 'Nærum Hovedgade 52, 2850 Nærum',
+    address: 'نوريبروغادي ١٢٣، ٢٢٠٠ كوبنهاغن شمال',
     phone: 'الهاتف: ٧٨ ٥٦ ٣٤ ١٢ ٤٥+',
     email: 'البريد الإلكتروني: info@elitecuts.dk',
 

@@ -8,31 +8,80 @@ export default function Services() {
   const { t } = useLanguage();
 
   const services = [
+    
     {
-      name: t.classicHaircut,
-      price: "$25",
+      name: t.mensHaircut,
+      price: "190 DKK",
       duration: "30 min",
-      description: t.classicHaircutDesc,
-      features: [t.hairConsultation || "Hair consultation", t.shampooConditioning || "Shampoo & conditioning", t.precisionCutting || "Precision cutting", t.styling || "Styling", t.hotTowelFinish || "Hot towel finish"],
+      description: t.mensHaircutDesc,
+      features: [
+        t.mensHaircutPrecisionCut,
+        t.mensHaircutStyling,
+        t.mensHaircutConsultation,
+        t.mensHaircutCleanFinish
+      ],
       icon: Scissors,
+      featured: false,
+    },
+    {
+      name: t.childHaircut,
+      price: "150 DKK",
+      duration: "30 min",
+      description: t.childHaircutDesc,
+      features: [
+        t.childHaircutKidsFriendly,
+        t.childHaircutQuickCut,
+        t.childHaircutStyling
+      ],
+      icon: Scissors,
+      featured: false,
+    },
+    {
+      name: t.pensionerHaircut,
+      price: "100 DKK",
+      duration: "30 min",
+      description: t.pensionerHaircutDesc,
+      features: [
+        t.pensionerHaircutPrecisionCut,
+        t.pensionerHaircutAffordablePrice,
+        t.pensionerHaircutStyling
+      ],
+      icon: Scissors,
+      featured: false,
     },
     {
       name: t.beardTrim,
-      price: "$15",
+      price: "150 DKK",
       duration: "20 min",
       description: t.beardTrimDesc,
-      features: [t.beardAssessment || "Beard assessment", t.precisionTrimming || "Precision trimming", t.edgeCleanup || "Edge cleanup", t.mustacheStyling || "Mustache styling", t.beardOilApplication || "Beard oil application"],
+      features: [
+        t.beardTrimShaping,
+        t.beardTrimHotTowel,
+        t.beardTrimAftershave
+      ],
       icon: Sparkles,
+      featured: false,
     },
     {
-      name: t.fullPackage,
-      price: "$35",
-      duration: "60 min",
-      description: t.fullPackageDesc,
-      features: [t.everythingFromServices || "Everything from haircut & beard trim", t.hotTowelTreatment || "Hot towel treatment", t.faceCleansing || "Face cleansing", t.aftershaveApplication || "Aftershave application", t.stylingConsultation || "Styling consultation"],
+      name: t.haircutAndBeard,
+      price: "230–260 DKK",
+      duration: "50 min",
+      description: t.haircutAndBeardDesc,
+      features: [
+        t.haircutAndBeardCombo,
+        t.haircutAndBeardHotTowel,
+        t.haircutAndBeardFaceCleansing,
+        t.haircutAndBeardAftershave,
+        t.haircutAndBeardConsultation
+      ],
       icon: Star,
       featured: true,
-    },
+    }
+
+
+
+
+
   ];
 
   return (
