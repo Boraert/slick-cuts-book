@@ -554,7 +554,7 @@ export const translations: Record<Language, Translations> = {
     denmark: 'الدنمارك',
     contactInfo: 'معلومات الاتصال',
     hours: 'ساعات العمل',
-    address: 'span>Nærum Hovedgade 52, 2850 Nærum',
+    address: 'Nærum Hovedgade 52, 2850 Nærum',
     phone: 'الهاتف: ٧٨ ٥٦ ٣٤ ١٢ ٤٥+',
     email: 'البريد الإلكتروني: info@elitecuts.dk',
 
