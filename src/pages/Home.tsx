@@ -8,24 +8,7 @@ import Services from "./Services";
 export default function Home() {
   const { t } = useLanguage();
   
-  const services = [
-    {
-      name: t.classicHaircut,
-      description: t.classicHaircutDesc,
-      icon: Scissors,
-    },
-    {
-      name: t.beardTrim,
-      description: t.beardTrimDesc,
-      icon: Scissors,
-    },
-    {
-      name: t.fullPackage,
-      description: t.fullPackageDesc,
-      icon: Star,
-    },
-  ];
-
+ 
   const features = [
     {
       icon: Clock,

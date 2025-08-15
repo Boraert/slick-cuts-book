@@ -189,7 +189,7 @@ export default function AdminDashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/admin/login");
+    navigate("/");
   };
 
   const getBarberName = (barberId: string) => {

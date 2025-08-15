@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <Scissors className="h-8 w-8 text-accent" />
-              <span className="text-xl font-bold text-foreground">Elite Cuts</span>
+              <span className="text-xl font-bold text-foreground">Frisør Nærum</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -120,7 +120,7 @@ export function Layout({ children }: LayoutProps) {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Scissors className="h-6 w-6 text-accent" />
-                <span className="text-lg font-bold">Elite Cuts</span>
+                <span className="text-lg font-bold">Frisør Nærum</span>
               </div>
               <p className="text-muted-foreground">
                 {t.professionalBarbershopFooter}
@@ -148,7 +148,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
           
           <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground">
-            <p>&copy; 2024 Elite Cuts. {t.allRightsReserved}</p>
+            <p>&copy; 2025 Frisør Nærum. {t.allRightsReserved}</p>
           </div>
         </div>
       </footer>
