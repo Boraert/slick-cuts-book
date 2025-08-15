@@ -272,9 +272,9 @@ export const translations: Record<Language, Translations> = {
     denmark: 'Denmark',
     contactInfo: 'Contact Info',
     hours: 'Hours',
-    address: 'Nørrebrogade 123, 2200 Copenhagen N',
+    address: 'Nærum Hovedgade 52, 2850 Nærum',
     phone: 'Phone: +45 12 34 56 78',
-    email: 'Email: info@elitecuts.dk',
+    email: 'Email: info@frisørnærum.dk',
 
     // Hours
     mondayFriday: 'Monday - Friday: 9:00 AM - 7:00 PM',
@@ -413,9 +413,9 @@ export const translations: Record<Language, Translations> = {
     denmark: 'Danmark',
     contactInfo: 'Kontakt Info',
     hours: 'Åbningstider',
-    address: 'Nørrebrogade 123, 2200 København N',
+    address: 'Nærum Hovedgade 52, 2850 Nærum',
     phone: 'Telefon: +45 12 34 56 78',
-    email: 'Email: info@elitecuts.dk',
+    email: 'Email: info@frisørnærum.dk',
 
     // Hours
     mondayFriday: 'Mandag - Fredag: 9:00 - 19:00',
@@ -554,7 +554,7 @@ export const translations: Record<Language, Translations> = {
     denmark: 'الدنمارك',
     contactInfo: 'معلومات الاتصال',
     hours: 'ساعات العمل',
-    address: 'نوريبروغادي ١٢٣، ٢٢٠٠ كوبنهاغن شمال',
+    address: 'span>Nærum Hovedgade 52, 2850 Nærum',
     phone: 'الهاتف: ٧٨ ٥٦ ٣٤ ١٢ ٤٥+',
     email: 'البريد الإلكتروني: info@elitecuts.dk',
 
