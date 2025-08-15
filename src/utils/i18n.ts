@@ -186,17 +186,17 @@ export const translations: Record<Language, Translations> = {
     bookNow: 'Book Now',
     bookYourAppointment: 'Book Your Appointment',
     readyForYourNextCut: 'Ready for Your Next Cut?',
-    experienceEliteCuts: 'Book your appointment today and experience the Elite Cuts difference',
+    experienceEliteCuts: 'Book your appointment today and experience the Frisør Nærum difference',
 
     // Hero section
-    heroTitle: 'Welcome to Elite Cuts Copenhagen',
-    heroSubtitle: 'Experience the finest barbershop tradition with modern style in the heart of Copenhagen. Professional cuts, expert service, timeless craftsmanship.',
+    heroTitle: 'Welcome to Frisør Nærum',
+    heroSubtitle: 'Experience the finest barbershop tradition with modern style in the heart of Nærum  Professional cuts, expert service, timeless craftsmanship.',
     viewServices: 'View Services',
 
     // Services
     ourServices: 'Our Services',
     professionalBarbering: 'Professional barbering services tailored to your style and preferences',
-    whyChooseEliteCuts: 'Why Choose Elite Cuts?',
+    whyChooseEliteCuts: 'Why Choose Frisør Nærum?',
     traditionalExcellence: 'We combine traditional barbering excellence with modern convenience',
     quickEasyBooking: 'Quick & Easy Booking',
     quickBookingDesc: 'Book your appointment online in just a few clicks',
@@ -256,7 +256,7 @@ export const translations: Record<Language, Translations> = {
     mostPopular: 'Most Popular',
     whatsIncluded: "What's Included:",
     bookThisService: 'Book This Service',
-    eliteCutsExperience: 'The Elite Cuts Experience',
+    eliteCutsExperience: 'The Frisør Nærum Experience',
     detailedConsultation: 'Every service includes a detailed consultation to understand your style preferences and lifestyle needs. Our experienced barbers use only premium products and tools to ensure the best results.',
     premiumProducts: 'Premium Products',
     expertCraftsmanship: 'Expert Craftsmanship',
@@ -312,14 +312,14 @@ export const translations: Record<Language, Translations> = {
     
     // Contact page
     contactUs: 'Contact Us',
-    getInTouchDesc: 'Get in touch with Elite Cuts. We\'re here to help with any questions or to schedule your next appointment.',
+    getInTouchDesc: 'Get in touch with risørnærum. We\'re here to help with any questions or to schedule your next appointment.',
     getInTouch: 'Get In Touch',
     visitUsDesc: 'Visit us at our barbershop or reach out through any of the following methods. We look forward to serving you!',
     findUs: 'Find Us',
     locationDesc: 'Located in the heart of the city, easily accessible by car or public transport.',
     interactiveMap: 'Interactive Map',
     mapIntegration: 'Map integration would go here',
-    whyVisitEliteCuts: 'Why Visit Elite Cuts?',
+    whyVisitEliteCuts: 'Why Visit Frisør Nærum ?',
     convenientLocation: 'Convenient Location',
     centrallyLocated: 'Centrally located with easy parking and public transport access.',
     flexibleHours: 'Flexible Hours',
@@ -330,19 +330,19 @@ export const translations: Record<Language, Translations> = {
 
     // Location and contact
     location: 'Location',
-    copenhagen: 'Copenhagen',
+    copenhagen: 'Nærum',
     denmark: 'Denmark',
     contactInfo: 'Contact Info',
     hours: 'Hours',
-    address: 'Nørrebrogade 123, 2200 Copenhagen N',
-    phone: 'Phone: +45 12 34 56 78',
-    email: 'Email: info@elitecuts.dk',
+    address: 'Nærum Hovedgade 52, 2850 Nærum',
+    phone: 'Phone: +45 28 44 67 49',
+    email: 'Email: info@frisørnærum.dk',
 
     // Hours
     mondayFriday: 'Monday - Friday: 9:00 AM - 7:00 PM',
 
     // Footer
-    professionalBarbershopFooter: 'Professional barbershop services with traditional craftsmanship and modern style in Copenhagen.',
+    professionalBarbershopFooter: 'Professional barbershop services with traditional craftsmanship and modern style in Nærum.',
     allRightsReserved: 'All rights reserved.'
   },
 
@@ -358,17 +358,17 @@ export const translations: Record<Language, Translations> = {
     bookNow: 'Book Nu',
     bookYourAppointment: 'Book Din Tid',
     readyForYourNextCut: 'Klar til Dit Næste Klip?',
-    experienceEliteCuts: 'Book din tid i dag og oplev Elite Cuts forskellen',
+    experienceEliteCuts: 'Book din tid i dag og oplev Frisør Nærum forskellen',
 
     // Hero section
-    heroTitle: 'Velkommen til Elite Cuts København',
+    heroTitle: 'Velkommen til Frisør Nærum.',
     heroSubtitle: 'Oplev den fineste barbertradition med moderne stil i hjertet af København. Professionelle klipninger, ekspertservice, tidløs håndværk.',
     viewServices: 'Se Tjenester',
 
     // Services
     ourServices: 'Vores Tjenester',
     professionalBarbering: 'Professionelle barbertjenester skræddersyet til din stil og præferencer',
-    whyChooseEliteCuts: 'Hvorfor Vælge Elite Cuts?',
+    whyChooseEliteCuts: 'Hvorfor Vælge Frisør Nærum',
     traditionalExcellence: 'Vi kombinerer traditionel barberekspertise med moderne bekvemmelighed',
     quickEasyBooking: 'Hurtig & Nem Booking',
     quickBookingDesc: 'Book din tid online med blot få klik',
@@ -458,7 +458,7 @@ export const translations: Record<Language, Translations> = {
     mostPopular: 'Mest Populære',
     whatsIncluded: 'Hvad er inkluderet:',
     bookThisService: 'Book denne service',
-    eliteCutsExperience: 'Elite Cuts Oplevelsen',
+    eliteCutsExperience: 'Frisør Nærum Oplevelsen',
     detailedConsultation: 'Hver service inkluderer en detaljeret konsultation for at forstå dine stilpræferencer og livsstilsbehov. Vores erfarne barberer bruger kun premium produkter og værktøjer for at sikre de bedste resultater.',
     premiumProducts: 'Premium Produkter',
     expertCraftsmanship: 'Ekspert Håndværk',
@@ -483,14 +483,14 @@ export const translations: Record<Language, Translations> = {
     
     // Contact page
     contactUs: 'Kontakt Os',
-    getInTouchDesc: 'Kom i kontakt med Elite Cuts. Vi er her for at hjælpe med eventuelle spørgsmål eller for at planlægge din næste aftale.',
+    getInTouchDesc: 'Kom i kontakt med Frisør Nærum. Vi er her for at hjælpe med eventuelle spørgsmål eller for at planlægge din næste aftale.',
     getInTouch: 'Kom i Kontakt',
     visitUsDesc: 'Besøg os i vores barbershop eller kontakt os gennem en af følgende metoder. Vi ser frem til at betjene dig!',
     findUs: 'Find Os',
     locationDesc: 'Beliggende i hjertet af byen, let tilgængelig med bil eller offentlig transport.',
     interactiveMap: 'Interaktivt Kort',
     mapIntegration: 'Kortintegration ville være her',
-    whyVisitEliteCuts: 'Hvorfor Besøge Elite Cuts?',
+    whyVisitEliteCuts: 'Hvorfor Besøge Frisør Nærum?',
     convenientLocation: 'Bekvem Placering',
     centrallyLocated: 'Centralt beliggende med let parkering og offentlig transport adgang.',
     flexibleHours: 'Fleksible Åbningstider',
@@ -501,13 +501,13 @@ export const translations: Record<Language, Translations> = {
 
     // Location and contact
     location: 'Beliggenhed',
-    copenhagen: 'København',
+    copenhagen: 'Nærum',
     denmark: 'Danmark',
     contactInfo: 'Kontakt Info',
     hours: 'Åbningstider',
-    address: 'Nørrebrogade 123, 2200 København N',
-    phone: 'Telefon: +45 12 34 56 78',
-    email: 'Email: info@elitecuts.dk',
+    address: 'Nærum Hovedgade 52, 2850 Nærum',
+    phone: 'Phone: +45 28 44 67 49',
+    email: 'Email: info@frisørnærum.dk',
 
     // Hours
     mondayFriday: 'Mandag - Fredag: 9:00 - 19:00',
@@ -529,17 +529,17 @@ export const translations: Record<Language, Translations> = {
     bookNow: 'احجز الآن',
     bookYourAppointment: 'احجز موعدك',
     readyForYourNextCut: 'جاهز لقصة شعرك القادمة؟',
-    experienceEliteCuts: 'احجز موعدك اليوم واختبر الفرق في إليت كتس',
+    experienceEliteCuts: 'احجز موعدك اليوم واختبر الفرق في Frisør Nærum ',
 
     // Hero section
-    heroTitle: 'مرحباً بكم في إليت كتس كوبنهاغن',
+    heroTitle: 'مرحباً بكم في Frisør Nærum ',
     heroSubtitle: 'اختبر أفضل تقاليد الحلاقة مع الأناقة الحديثة في قلب كوبنهاغن. قصات احترافية، خدمة خبيرة، حرفية خالدة.',
     viewServices: 'عرض الخدمات',
 
     // Services
     ourServices: 'خدماتنا',
     professionalBarbering: 'خدمات حلاقة احترافية مصممة خصيصاً لأسلوبك وتفضيلاتك',
-    whyChooseEliteCuts: 'لماذا تختار إليت كتس؟',
+    whyChooseEliteCuts: 'لماذا تختار Frisør Nærum ؟',
     traditionalExcellence: 'نجمع بين التميز التقليدي في الحلاقة والراحة الحديثة',
     quickEasyBooking: 'حجز سريع وسهل',
     quickBookingDesc: 'احجز موعدك عبر الإنترنت بنقرات قليلة فقط',
@@ -629,7 +629,7 @@ export const translations: Record<Language, Translations> = {
     mostPopular: 'الأكثر شعبية',
     whatsIncluded: 'ما هو مشمول:',
     bookThisService: 'احجز هذه الخدمة',
-    eliteCutsExperience: 'تجربة إليت كتس',
+    eliteCutsExperience: 'تجربة Frisør Nærum ',
     detailedConsultation: 'تتضمن كل خدمة استشارة مفصلة لفهم تفضيلات أسلوبك واحتياجات نمط حياتك. يستخدم حلاقونا ذوو الخبرة فقط المنتجات والأدوات الممتازة لضمان أفضل النتائج.',
     premiumProducts: 'منتجات ممتازة',
     expertCraftsmanship: 'حرفية خبير',
@@ -661,7 +661,7 @@ export const translations: Record<Language, Translations> = {
     locationDesc: 'يقع في قلب المدينة، سهل الوصول بالسيارة أو وسائل النقل العام.',
     interactiveMap: 'خريطة تفاعلية',
     mapIntegration: 'تكامل الخريطة سيكون هنا',
-    whyVisitEliteCuts: 'لماذا زيارة إليت كتس؟',
+    whyVisitEliteCuts: 'لماذا زيارة Frisør Nærum؟',
     convenientLocation: 'موقع مناسب',
     centrallyLocated: 'يقع في وسط المدينة مع سهولة وقوف السيارات ووصول وسائل النقل العام.',
     flexibleHours: 'ساعات مرنة',
@@ -672,19 +672,22 @@ export const translations: Record<Language, Translations> = {
 
     // Location and contact
     location: 'الموقع',
-    copenhagen: 'كوبنهاغن',
+    copenhagen: 'Nærum',
     denmark: 'الدنمارك',
     contactInfo: 'معلومات الاتصال',
     hours: 'ساعات العمل',
-    address: 'نوريبروغادي ١٢٣، ٢٢٠٠ كوبنهاغن شمال',
-    phone: 'الهاتف: ٧٨ ٥٦ ٣٤ ١٢ ٤٥+',
-    email: 'البريد الإلكتروني: info@elitecuts.dk',
+    address: 'Nærum Hovedgade 52, 2850 Nærum',
+    phone: 'الهاتف: 45 28 44 67 49+',
+    email: 'البريد الإلكتروني: info@frisørNærum.dk',
+    
+    
+    
 
     // Hours
     mondayFriday: 'الاثنين - الجمعة: ٩:٠٠ ص - ٧:٠٠ م',
 
     // Footer
-    professionalBarbershopFooter: 'خدمات حلاقة احترافية مع الحرفية التقليدية والأناقة الحديثة في كوبنهاغن.',
+    professionalBarbershopFooter: 'خدمات حلاقة احترافية مع الحرفية التقليدية والأناقة الحديثة في Nærum.',
     allRightsReserved: 'جميع الحقوق محفوظة.'
   }
 };

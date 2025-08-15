@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Scissors, Clock, Users, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import Services from "./Services";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -70,37 +71,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              {t.ourServices}
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              {t.professionalBarbering}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="mx-auto mb-4 p-3 bg-accent/10 rounded-full w-fit">
-                    <service.icon className="h-8 w-8 text-accent" />
-                  </div>
-                  <CardTitle className="text-xl">{service.name}</CardTitle>
-                  <CardDescription className="text-lg">{service.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link to="/book">
-                    <Button className="w-full">{t.bookNow}</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <Services />
 
       {/* Features Section */}
       <section className="py-16 lg:py-24 bg-muted/30">
