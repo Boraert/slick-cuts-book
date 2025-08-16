@@ -104,7 +104,7 @@ export default function BookAppointment() {
 
       if (apptError) throw apptError;
 
-      const booked = appointments?.map((apt: any) => apt.appointment_time) || [];
+      const booked = appointments?.map((apt: any) => apt.appointment_time.slice(0,5)) || [];
       const available = slots.filter(slot => !booked.includes(slot));
       
       setAllTimeSlots(slots);
