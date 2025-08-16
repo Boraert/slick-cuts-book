@@ -116,14 +116,19 @@ export default function Contact() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-muted rounded-lg h-64 lg:h-96 flex items-center justify-center">
-                    <div className="text-center text-muted-foreground">
-                      <MapPin className="h-12 w-12 mx-auto mb-4" />
-                      <p className="text-lg font-medium">{t.interactiveMap || "Interactive Map"}</p>
-                      <p className="text-sm">{t.mapIntegration || "Map integration would go here"}</p>
-                    </div>
+                  <div className="rounded-lg overflow-hidden h-64 lg:h-96">
+                    <iframe
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2696.7646664368403!2d12.534582677320067!3d55.81985657310903!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46524ea54ba87fef%3A0x39a217c2530b8ff7!2sN%C3%A6rum%20Hovedgade%2052%2C%202850%20N%C3%A6rum!5e1!3m2!1sda!2sdk!4v1755331751062!5m2!1sda!2sdk"
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
                   </div>
                 </CardContent>
+
               </Card>
             </div>
           </div>
