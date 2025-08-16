@@ -119,9 +119,7 @@ export default function DatePicker({ selectedDate, onDateSelect, className }: Da
           })}
         </div>
 
-        <div className="mt-3 text-xs text-gray-500 text-center">
-          You can book up to one year in advance
-        </div>
+        
       </CardContent>
     </Card>
   );
