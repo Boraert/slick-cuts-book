@@ -390,7 +390,6 @@ export default function BookAppointment() {
                         >
                           <Clock className="h-4 w-4" />
                           {time}
-                          {isBooked && <span className="text-xs ml-1">(Booked)</span>}
                         </Button>
                       );
                     })}
