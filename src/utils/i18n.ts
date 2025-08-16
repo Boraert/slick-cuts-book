@@ -250,6 +250,8 @@ export const translations: Record<Language, Translations> = {
     returnHome: 'Return to Home',
     notificationPreference: 'How would you like to receive notifications?',
     selectNotificationMethod: 'Select notification method',
+    youCanBook: "You can book appointments up to one year in advance",
+    
     sms: 'SMS',
     
     // Services page
@@ -442,6 +444,7 @@ export const translations: Record<Language, Translations> = {
     saturday: 'Lørdag',
     sunday: 'Søndag',
     closed: 'Lukket',
+    youCanBook: "Du kan booke aftaler op til et år i forvejen",
 
     // Booking confirmation
     bookingConfirmed: 'Booking Bekræftet!',
@@ -624,6 +627,7 @@ export const translations: Record<Language, Translations> = {
     notificationPreference: 'كيف تريد استقبال الإشعارات؟',
     selectNotificationMethod: 'اختر طريقة الإشعار',
     sms: 'رسائل نصية',
+    youCanBook: "يمكنك حجز المواعيد قبل عام واحد مقدمًا",
     
     // Services page
     mostPopular: 'الأكثر شعبية',

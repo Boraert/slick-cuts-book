@@ -13,6 +13,7 @@ import { CheckCircle2, Clock, User, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS, ar } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
+import DatePicker from "@/components/DatePicker"
 
 const bookingSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
@@ -328,33 +329,43 @@ export default function BookAppointment() {
             </Card>
 
             {/* Step 2: Select Date */}
-            <Card className={currentStep >= 2 ? "ring-2 ring-primary" : currentStep < 2 ? "opacity-50" : ""}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                    2
-                  </div>
-                  {t.selectDate}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {currentStep >= 2 && (
-                  <div>
-                    <Input
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => handleDateSelect(e.target.value)}
-                      min={format(new Date(), "yyyy-MM-dd")}
-                      max={format(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), "yyyy-MM-dd")}
-                      className="w-full"
-                    />
-                    <p className="text-sm text-muted-foreground mt-2">
-                      You can book appointments up to one year in advance
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+             <Card
+                className={
+                  currentStep >= 2
+                    ? "ring-2 ring-primary"
+                    : currentStep < 2
+                    ? "opacity-50"
+                    : ""
+                }
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        currentStep >= 2
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      2
+                    </div>
+                    {t.selectDate}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {currentStep >= 2 && (
+                    <div>
+                      <DatePicker
+                        selectedDate={selectedDate}
+                        onDateSelect={(date) => handleDateSelect(date)}
+                      />
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {t.youCanBook || "You can book appointments up to one year in advance"}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
             {/* Step 3: Select Time */}
             <Card className={currentStep >= 3 ? "ring-2 ring-primary" : currentStep < 3 ? "opacity-50" : ""}>

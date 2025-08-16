@@ -1,149 +1,128 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, isBefore } from "date-fns";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, startOfDay, isBefore, isAfter } from "date-fns";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { da, enUS, ar } from "date-fns/locale";
 
 interface DatePickerProps {
-  selectedDate: string;
+  selectedDate: string | null;
   onDateSelect: (date: string) => void;
+  className?: string;
 }
 
-export default function DatePicker({ selectedDate, onDateSelect }: DatePickerProps) {
+export default function DatePicker({ selectedDate, onDateSelect, className }: DatePickerProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [showCalendar, setShowCalendar] = useState(false);
   const { language } = useLanguage();
 
   const getDateLocale = () => {
     switch (language) {
-      case 'da': return da;
-      case 'ar': return ar;
+      case "da": return da;
+      case "ar": return ar;
       default: return enUS;
     }
   };
 
-  const today = new Date();
+  // Use startOfDay to avoid disabling "today"
+  const today = startOfDay(new Date());
   const maxDate = addDays(today, 365); // One year from today
 
   const daysInMonth = eachDayOfInterval({
     start: startOfMonth(currentMonth),
-    end: endOfMonth(currentMonth)
+    end: endOfMonth(currentMonth),
   });
 
-  // Add empty cells for days before the start of the month
-  const startDay = startOfMonth(currentMonth).getDay();
-  const emptyDays = Array(startDay).fill(null);
+  // Monday-first grid alignment
+  const startDay = (startOfMonth(currentMonth).getDay() + 6) % 7;
+  const emptyDays = Array.from({ length: startDay });
 
   const isDateDisabled = (date: Date) => {
-    return isBefore(date, today) || isBefore(maxDate, date);
+    return isBefore(date, today) || isAfter(date, maxDate);
   };
 
   const handleDateClick = (date: Date) => {
     if (!isDateDisabled(date)) {
       onDateSelect(format(date, "yyyy-MM-dd"));
-      setShowCalendar(false);
     }
   };
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    if (direction === 'prev' && isSameMonth(currentMonth, today)) {
-      return; // Don't go to previous months before current month
-    }
-    
-    const newMonth = direction === 'prev' 
-      ? addDays(startOfMonth(currentMonth), -1)
-      : addDays(endOfMonth(currentMonth), 1);
-    
-    setCurrentMonth(newMonth);
+  const navigateMonth = (direction: "prev" | "next") => {
+    if (direction === "prev" && isSameMonth(currentMonth, today)) return;
+    const base = direction === "prev" ? startOfMonth(currentMonth) : endOfMonth(currentMonth);
+    setCurrentMonth(addDays(base, direction === "prev" ? -1 : 1));
   };
 
   return (
-    <div className="space-y-4">
-      <div>
-        <Label htmlFor="date-input">Select Date</Label>
-        <div className="relative">
-          <Input
-            id="date-input"
-            type="text"
-            value={selectedDate ? format(new Date(selectedDate), "MMMM d, yyyy", { locale: getDateLocale() }) : ""}
-            placeholder="Choose a date"
-            readOnly
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="cursor-pointer pr-10"
-          />
-          <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
-      </div>
+    <Card className={`w-full rounded-lg border bg-white shadow-sm ${className || ""}`}>
+      <CardHeader className="pb-2 border-b bg-gray-50">
+        <CardTitle className="flex items-center justify-between text-base font-semibold text-gray-700">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigateMonth("prev")}
+            disabled={isSameMonth(currentMonth, today)}
+            className="hover:bg-gray-200 rounded-md p-1"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
 
-      {showCalendar && (
-        <Card className="absolute z-50 w-80">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center justify-between text-lg">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigateMonth('prev')}
-                disabled={isSameMonth(currentMonth, today)}
+          <span className="capitalize">
+            {format(currentMonth, "MMMM yyyy", { locale: getDateLocale() })}
+          </span>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigateMonth("next")}
+            className="hover:bg-gray-200 rounded-md p-1"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        {/* Weekday header (Mon-Sun) */}
+        <div className="grid grid-cols-7 text-center text-sm font-medium text-gray-500 mb-1">
+          {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
+            <div key={d} className="py-2">{d}</div>
+          ))}
+        </div>
+
+        {/* Calendar grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {emptyDays.map((_, i) => (
+            <div key={`empty-${i}`} className="h-10" />
+          ))}
+
+          {daysInMonth.map((date) => {
+            const dStr = format(date, "yyyy-MM-dd");
+            const isSelected = selectedDate === dStr;
+            const disabled = isDateDisabled(date);
+
+            return (
+              <button
+                key={dStr}
+                onClick={() => handleDateClick(date)}
+                disabled={disabled}
+                className={[
+                  "h-10 w-full text-sm flex items-center justify-center rounded-md border transition-colors",
+                  disabled && "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200",
+                  !disabled && !isSelected && "bg-green-50 text-green-700 border-green-300 hover:bg-green-100",
+                  isSelected && "bg-green-600 text-white border-green-600",
+                ].filter(Boolean).join(" ")}
               >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span>{format(currentMonth, "MMMM yyyy", { locale: getDateLocale() })}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigateMonth('next')}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
-                <div key={index} className="text-center text-sm font-medium text-muted-foreground p-2">
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {emptyDays.map((_, index) => (
-                <div key={`empty-${index}`} className="p-2"></div>
-              ))}
-              {daysInMonth.map((date) => {
-                const isSelected = selectedDate === format(date, "yyyy-MM-dd");
-                const disabled = isDateDisabled(date);
-                const isCurrentDay = isToday(date);
-                
-                return (
-                  <Button
-                    key={date.toISOString()}
-                    variant={isSelected ? "default" : "ghost"}
-                    size="sm"
-                    className={`h-8 w-8 p-0 ${
-                      disabled 
-                        ? "text-muted-foreground cursor-not-allowed opacity-50" 
-                        : isCurrentDay 
-                          ? "bg-primary/10 text-primary font-bold"
-                          : ""
-                    }`}
-                    onClick={() => handleDateClick(date)}
-                    disabled={disabled}
-                  >
-                    {format(date, "d")}
-                  </Button>
-                );
-              })}
-            </div>
-            <div className="mt-4 text-xs text-muted-foreground text-center">
-              You can book up to one year in advance
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+                {format(date, "d")}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 text-xs text-gray-500 text-center">
+          You can book up to one year in advance
+        </div>
+      </CardContent>
+    </Card>
   );
 }
