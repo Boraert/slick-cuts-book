@@ -505,7 +505,7 @@ export default function BookAppointment() {
           </div>
 
           {/* Right Side - Summary */}
-          <div className="space-y-6">
+           <div className="space-y-6">
             <Card className="sticky top-8">
               <CardHeader>
                 <CardTitle>{t.appointmentSummary || "Appointment Summary"}</CardTitle>
@@ -519,7 +519,7 @@ export default function BookAppointment() {
                         <img 
                           src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
                           alt={barber.name}
-                          className="h-16 w-16 rounded-full object-cover"
+                          className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (
                         <User className="h-5 w-5 text-primary" />
@@ -542,11 +542,11 @@ export default function BookAppointment() {
                   </div>
                 )}
 
-                {form.getValues("appointmentTime") && (
+               {form.watch("appointmentTime") && (
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                     <Clock className="h-5 w-5 text-primary" />
                     <div>
-                      <p className="font-medium">{form.getValues("appointmentTime")}</p>
+                      <p className="font-medium">{form.watch("appointmentTime")}</p>
                       <p className="text-sm text-muted-foreground">{t.time}</p>
                     </div>
                   </div>
@@ -560,6 +560,7 @@ export default function BookAppointment() {
                 )}
               </CardContent>
             </Card>
+
 
             {/* Opening Hours */}
             <Card>
