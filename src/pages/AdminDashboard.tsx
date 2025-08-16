@@ -14,14 +14,8 @@ import BarberPhotoUpload from "@/components/BarberPhotoUpload";
 import { 
   Calendar, 
   Clock, 
-  User, 
   Users, 
-  CheckCircle2, 
-  XCircle, 
   LogOut,
-  Plus,
-  Pencil,
-  Trash2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -48,7 +42,8 @@ interface Barber {
 interface BarberAvailability {
   id: string;
   barber_id: string;
-  date: string;
+  from_date: string;
+  to_date: string;
   start_time: string;
   end_time: string;
   is_available: boolean;
@@ -58,7 +53,8 @@ export default function AdminDashboard() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [availability, setAvailability] = useState<BarberAvailability[]>([]);
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  // per-barber date ranges + times stored in maps keyed by barber id
+  const [barberRanges, setBarberRanges] = useState<Record<string, { fromDate: string; toDate: string; startTime: string; endTime: string }>>({});
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -66,8 +62,20 @@ export default function AdminDashboard() {
   useEffect(() => {
     checkAuth();
     loadData();
-    loadAvailability();
+    // loadAvailability will be called after barbers are loaded (see loadData -> setBarbers)
+    // so we don't call it here with empty barbers.
   }, []);
+
+  // initialize defaults for a barber range
+  const defaultRangeFor = (barberId: string) => {
+    const today = format(new Date(), "yyyy-MM-dd");
+    return {
+      fromDate: today,
+      toDate: today,
+      startTime: "09:00",
+      endTime: "18:00",
+    };
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -76,7 +84,6 @@ export default function AdminDashboard() {
       return;
     }
 
-    // Verify admin access for the current user
     const { data: adminUser, error } = await supabase
       .from("admin_users")
       .select("*")
@@ -95,6 +102,7 @@ export default function AdminDashboard() {
     }
   };
 
+  // load appointments and barbers; after barbers are loaded, set defaults and load availability
   const loadData = async () => {
     try {
       const [appointmentsResult, barbersResult] = await Promise.all([
@@ -105,8 +113,23 @@ export default function AdminDashboard() {
       if (appointmentsResult.error) throw appointmentsResult.error;
       if (barbersResult.error) throw barbersResult.error;
 
+      const barbersData: Barber[] = barbersResult.data || [];
       setAppointments(appointmentsResult.data || []);
-      setBarbers(barbersResult.data || []);
+      setBarbers(barbersData);
+
+      // initialize barberRanges map for each barber if not existing
+      setBarberRanges(prev => {
+        const copy = { ...prev };
+        for (const b of barbersData) {
+          if (!copy[b.id]) {
+            copy[b.id] = defaultRangeFor(b.id);
+          }
+        }
+        return copy;
+      });
+
+      // load all availability rows (we will match per-barber in the UI)
+      await loadAvailability();
     } catch (error) {
       console.error("Error loading data:", error);
       toast({
@@ -119,36 +142,49 @@ export default function AdminDashboard() {
     }
   };
 
+  // Load all availability rows (you can later filter by barber on the client)
   const loadAvailability = async () => {
     try {
       const { data, error } = await supabase
         .from("barber_availability")
-        .select("*")
-        .eq("date", selectedDate);
+        .select("*");
 
       if (error) throw error;
       setAvailability(data || []);
     } catch (error) {
       console.error("Error loading availability:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load availability.",
+        variant: "destructive",
+      });
     }
   };
 
+  // Update or insert a row for a specific barber + from_date + to_date (update same row if exists)
   const updateAvailability = async (
-    barberId: string, 
-    isAvailable: boolean, 
-    startTime: string, 
-    endTime: string
+    barberId: string,
+    isAvailable: boolean,
+    startTime: string,
+    endTime: string,
+    fromDate: string,
+    toDate: string
   ) => {
     try {
-      const { data: existing } = await supabase
+      // Check for existing row for this barber + exact date range
+      const { data: existing, error: selectError } = await supabase
         .from("barber_availability")
         .select("id")
         .eq("barber_id", barberId)
-        .eq("date", selectedDate)
-        .single();
+        .eq("from_date", fromDate)
+        .eq("to_date", toDate)
+        .maybeSingle(); // safe in case multiple rows (shouldn't happen if you have unique constraint)
 
-      if (existing) {
-        const { error } = await supabase
+      if (selectError) throw selectError;
+
+      if (existing && existing.id) {
+        // update the existing row
+        const { error: updateError } = await supabase
           .from("barber_availability")
           .update({
             is_available: isAvailable,
@@ -157,31 +193,33 @@ export default function AdminDashboard() {
           })
           .eq("id", existing.id);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
       } else {
-        const { error } = await supabase
+        // insert a new row for this barber/range
+        const { error: insertError } = await supabase
           .from("barber_availability")
           .insert({
             barber_id: barberId,
-            date: selectedDate,
+            from_date: fromDate,
+            to_date: toDate,
             is_available: isAvailable,
             start_time: startTime,
             end_time: endTime,
           });
 
-        if (error) throw error;
+        if (insertError) throw insertError;
       }
 
-      loadAvailability();
+      await loadAvailability();
       toast({
         title: "Success",
         description: "Availability updated successfully.",
       });
-    } catch (error) {
-      console.error("Error updating availability:", error);
+    } catch (err: any) {
+      console.error("Error updating availability:", err);
       toast({
         title: "Error",
-        description: "Failed to update availability.",
+        description: err?.message || "Failed to update availability.",
         variant: "destructive",
       });
     }
@@ -189,7 +227,7 @@ export default function AdminDashboard() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/");
+    navigate("/admin/login");
   };
 
   const getBarberName = (barberId: string) => {
@@ -256,8 +294,9 @@ export default function AdminDashboard() {
             <TabsTrigger value="barbers">Barber Management</TabsTrigger>
           </TabsList>
 
+          {/* Appointments */}
           <TabsContent value="appointments" className="space-y-6">
-            {/* Stats Cards */}
+            {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -279,9 +318,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{upcomingAppointments.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Next 7 days
-                  </p>
+                  <p className="text-xs text-muted-foreground">Next 7 days</p>
                 </CardContent>
               </Card>
 
@@ -292,9 +329,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{barbers.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Currently available
-                  </p>
+                  <p className="text-xs text-muted-foreground">Currently available</p>
                 </CardContent>
               </Card>
             </div>
@@ -303,9 +338,7 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Appointments</CardTitle>
-                <CardDescription>
-                  Latest bookings and their status
-                </CardDescription>
+                <CardDescription>Latest bookings and their status</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="rounded-md border">
@@ -326,9 +359,7 @@ export default function AdminDashboard() {
                           <TableCell>
                             <div>
                               <div className="font-medium">{appointment.customer_name}</div>
-                              <div className="text-sm text-muted-foreground">
-                                {appointment.customer_email}
-                              </div>
+                              <div className="text-sm text-muted-foreground">{appointment.customer_email}</div>
                             </div>
                           </TableCell>
                           <TableCell>
@@ -336,9 +367,7 @@ export default function AdminDashboard() {
                               <div className="font-medium">
                                 {format(new Date(appointment.appointment_date), "MMM d, yyyy")}
                               </div>
-                              <div className="text-sm text-muted-foreground">
-                                {appointment.appointment_time}
-                              </div>
+                              <div className="text-sm text-muted-foreground">{appointment.appointment_time}</div>
                             </div>
                           </TableCell>
                           <TableCell>{getServiceLabel(appointment.service_type)}</TableCell>
@@ -355,50 +384,39 @@ export default function AdminDashboard() {
                       ))}
                     </TableBody>
                   </Table>
-                  
                   {appointments.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No appointments found.
-                    </div>
+                    <div className="text-center py-8 text-muted-foreground">No appointments found.</div>
                   )}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
+          {/* Barber Management */}
           <TabsContent value="barbers" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Barber Management
+                  <Users className="h-5 w-5" /> Barber Management
                 </CardTitle>
-                <CardDescription>
-                  Manage barber photos and availability schedules
-                </CardDescription>
+                <CardDescription>Manage barber photos and availability schedules</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="mb-6">
-                  <Label htmlFor="date-select">Select Date</Label>
-                  <Input
-                    id="date-select"
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => {
-                      setSelectedDate(e.target.value);
-                      loadAvailability();
-                    }}
-                    className="max-w-xs"
-                  />
-                </div>
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {barbers.map((barber) => {
-                    const barberAvail = availability.find(a => a.barber_id === barber.id);
-                    
+                    // get this barber's configured range (local state)
+                    const range = barberRanges[barber.id] ?? defaultRangeFor(barber.id);
+
+                    // find a matching availability row (exact match on barber + range)
+                    const barberAvail = availability.find(
+                      (a) =>
+                        a.barber_id === barber.id &&
+                        a.from_date === range.fromDate &&
+                        a.to_date === range.toDate
+                    );
+
                     return (
                       <div key={barber.id} className="space-y-4">
-                        {/* Barber Photo Upload */}
                         <BarberPhotoUpload
                           barberId={barber.id}
                           barberName={barber.name}
@@ -410,12 +428,41 @@ export default function AdminDashboard() {
                           }}
                         />
 
-                        {/* Availability Management */}
                         <Card>
                           <CardHeader>
-                            <CardTitle className="text-lg">Availability for {selectedDate}</CardTitle>
+                            <CardTitle className="text-lg">
+                              {barber.name} — Range
+                            </CardTitle>
                           </CardHeader>
                           <CardContent className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4 max-w-md mb-2">
+                              <div>
+                                <Label htmlFor={`from-${barber.id}`}>From</Label>
+                                <Input
+                                  id={`from-${barber.id}`}
+                                  type="date"
+                                  value={range.fromDate}
+                                  onChange={(e) => {
+                                    const newFrom = e.target.value;
+                                    setBarberRanges(prev => ({ ...prev, [barber.id]: { ...range, fromDate: newFrom } }));
+                                  }}
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor={`to-${barber.id}`}>To</Label>
+                                <Input
+                                  id={`to-${barber.id}`}
+                                  type="date"
+                                  value={range.toDate}
+                                  onChange={(e) => {
+                                    const newTo = e.target.value;
+                                    setBarberRanges(prev => ({ ...prev, [barber.id]: { ...range, toDate: newTo } }));
+                                  }}
+                                />
+                              </div>
+                            </div>
+
                             <div className="flex items-center justify-between">
                               <Label htmlFor={`available-${barber.id}`} className="text-sm font-medium">
                                 Available
@@ -423,36 +470,94 @@ export default function AdminDashboard() {
                               <Switch
                                 id={`available-${barber.id}`}
                                 checked={barberAvail?.is_available || false}
-                                onCheckedChange={(checked) => 
-                                  updateAvailability(barber.id, checked, "09:00", "18:00")
-                                }
+                                onCheckedChange={(checked) => {
+                                  // use current range.startTime/endTime from state or defaults
+                                  const { startTime, endTime, fromDate, toDate } = barberRanges[barber.id] ?? defaultRangeFor(barber.id);
+                                  updateAvailability(barber.id, checked, startTime, endTime, fromDate, toDate);
+                                }}
                               />
                             </div>
 
-                            {barberAvail?.is_available && (
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <Label htmlFor={`start-${barber.id}`}>Start Time</Label>
-                                  <Input
-                                    id={`start-${barber.id}`}
-                                    type="time"
-                                    value={barberAvail?.start_time || "09:00"}
-                                    onChange={(e) => 
-                                      updateAvailability(barber.id, true, e.target.value, barberAvail?.end_time)
-                                    }
-                                  />
-                                </div>
-                                <div>
-                                  <Label htmlFor={`end-${barber.id}`}>End Time</Label>
-                                  <Input
-                                    id={`end-${barber.id}`}
-                                    type="time"
-                                    value={barberAvail?.end_time || "18:00"}
-                                    onChange={(e) => 
-                                      updateAvailability(barber.id, true, barberAvail?.start_time, e.target.value)
-                                    }
-                                  />
-                                </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor={`start-${barber.id}`}>Start Time</Label>
+                                <Input
+                                  id={`start-${barber.id}`}
+                                  type="time"
+                                  value={barberAvail?.start_time ?? range.startTime}
+                                  onChange={(e) => {
+                                    const newStart = e.target.value;
+                                    // update local map
+                                    setBarberRanges(prev => ({ ...prev, [barber.id]: { ...range, startTime: newStart } }));
+                                    // if there is an existing DB row for this exact range, update it
+                                    const { fromDate, toDate } = range;
+                                    updateAvailability(barber.id, true, newStart, barberAvail?.end_time ?? range.endTime, fromDate, toDate);
+                                  }}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`end-${barber.id}`}>End Time</Label>
+                                <Input
+                                  id={`end-${barber.id}`}
+                                  type="time"
+                                  value={barberAvail?.end_time ?? range.endTime}
+                                  onChange={(e) => {
+                                    const newEnd = e.target.value;
+                                    setBarberRanges(prev => ({ ...prev, [barber.id]: { ...range, endTime: newEnd } }));
+                                    const { fromDate, toDate } = range;
+                                    updateAvailability(barber.id, true, barberAvail?.start_time ?? range.startTime, newEnd, fromDate, toDate);
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex gap-2 pt-2">
+                              <Button
+                                onClick={() => {
+                                  // Save (create or update) availability for this barber + range using current local state
+                                  const { fromDate, toDate, startTime, endTime } = barberRanges[barber.id] ?? defaultRangeFor(barber.id);
+                                  // If toggle not set in DB, we will treat as available = true by default when saving
+                                  const isAvailable = barberAvail?.is_available ?? true;
+                                  updateAvailability(barber.id, isAvailable, startTime, endTime, fromDate, toDate);
+                                }}
+                              >
+                                Save Range
+                              </Button>
+
+                              <Button
+                                variant="outline"
+                                onClick={async () => {
+                                  // Delete the row for this barber + exact range if exists
+                                  const rangeState = barberRanges[barber.id] ?? defaultRangeFor(barber.id);
+                                  try {
+                                    const { error } = await supabase
+                                      .from("barber_availability")
+                                      .delete()
+                                      .eq("barber_id", barber.id)
+                                      .eq("from_date", rangeState.fromDate)
+                                      .eq("to_date", rangeState.toDate);
+
+                                    if (error) throw error;
+                                    await loadAvailability();
+                                    toast({ title: "Deleted", description: "Availability removed for that range." });
+                                  } catch (err: any) {
+                                    console.error("Error deleting availability:", err);
+                                    toast({ title: "Error", description: "Failed to delete availability.", variant: "destructive" });
+                                  }
+                                }}
+                              >
+                                Remove Range
+                              </Button>
+                            </div>
+
+                            {/* show currently saved availability for this barber+range */}
+                            {barberAvail ? (
+                              <div className="text-sm text-muted-foreground pt-2">
+                                Saved: {barberAvail.is_available ? "Available" : "Unavailable"} • {barberAvail.start_time} — {barberAvail.end_time} ({barberAvail.from_date} → {barberAvail.to_date})
+                              </div>
+                            ) : (
+                              <div className="text-sm text-muted-foreground pt-2">
+                                No saved availability for this exact range.
                               </div>
                             )}
                           </CardContent>

@@ -13,7 +13,8 @@ import { CheckCircle2, Clock, User, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS, ar } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
-import DatePicker from "@/components/DatePicker"
+import DatePicker from "@/components/DatePicker";
+
 
 const bookingSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
@@ -76,45 +77,62 @@ export default function BookAppointment() {
     }
   };
 
-  const loadAvailableSlots = async () => {
-    try {
-      // Get barber availability
-      const { data: availability, error: availError } = await (supabase as any)
-        .from("barber_availability")
-        .select("*")
-        .eq("barber_id", selectedBarber)
-        .eq("date", selectedDate)
-        .eq("is_available", true)
-        .single();
+ const loadAvailableSlots = async () => {
+  try {
+    if (!selectedBarber || !selectedDate) return;
 
-      if (availError || !availability) {
-        setAvailableSlots([]);
-        return;
-      }
+    // Get barber availability for the selected date
+    const { data: availability, error: availError } = await (supabase as any)
+      .from("barber_availability")
+      .select("*")
+      .eq("barber_id", selectedBarber)
+      .lte("from_date", selectedDate) // date >= from_date
+      .gte("to_date", selectedDate)   // date <= to_date
+      .eq("is_available", true);
 
-      // Generate time slots between start and end time
-      const slots = generateTimeSlots(availability.start_time, availability.end_time);
-      
-      // Get booked appointments
-      const { data: appointments, error: apptError } = await (supabase as any)
-        .from("appointments")
-        .select("appointment_time")
-        .eq("barber_id", selectedBarber)
-        .eq("appointment_date", selectedDate)
-        .eq("status", "confirmed");
+    if (availError) throw availError;
 
-      if (apptError) throw apptError;
-
-      const booked = appointments?.map((apt: any) => apt.appointment_time.slice(0,5)) || [];
-      const available = slots.filter(slot => !booked.includes(slot));
-      
-      setAllTimeSlots(slots);
-      setAvailableSlots(available);
-      setBookedSlots(booked);
-    } catch (error) {
-      console.error("Error loading availability:", error);
+    if (!availability || availability.length === 0) {
+      // No available slots for this barber on this day
+      setAvailableSlots([]);
+      setBookedSlots([]);
+      setAllTimeSlots([]);
+      return;
     }
-  };
+
+    // Generate time slots from all availability windows
+    let slots: string[] = [];
+    availability.forEach((avail: any) => {
+      slots = [
+        ...slots,
+        ...generateTimeSlots(avail.start_time, avail.end_time),
+      ];
+    });
+
+    // Get booked appointments for this barber/date
+    const { data: appointments, error: apptError } = await (supabase as any)
+      .from("appointments")
+      .select("appointment_time")
+      .eq("barber_id", selectedBarber)
+      .eq("appointment_date", selectedDate)
+      .eq("status", "confirmed");
+
+    if (apptError) throw apptError;
+
+    const booked = appointments?.map((apt: any) => apt.appointment_time.slice(0, 5)) || [];
+    const available = slots.filter((slot) => !booked.includes(slot));
+
+    setAllTimeSlots(slots);
+    setAvailableSlots(available);
+    setBookedSlots(booked);
+  } catch (error) {
+    console.error("Error loading availability:", error);
+    setAvailableSlots([]);
+    setBookedSlots([]);
+    setAllTimeSlots([]);
+  }
+};
+
 
   const generateTimeSlots = (startTime: string, endTime: string) => {
     const slots = [];
@@ -316,7 +334,7 @@ export default function BookAppointment() {
                         <img 
                           src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
                           alt={barber.name}
-                          className="h-16 w-16 rounded-full object-cover"
+                          className="h-8 w-8 rounded-full object-cover"
                         />
                       ) : (
                         <User className="h-5 w-5" />
@@ -329,43 +347,43 @@ export default function BookAppointment() {
             </Card>
 
             {/* Step 2: Select Date */}
-             <Card
-                className={
-                  currentStep >= 2
-                    ? "ring-2 ring-primary"
-                    : currentStep < 2
-                    ? "opacity-50"
-                    : ""
-                }
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        currentStep >= 2
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      2
-                    </div>
-                    {t.selectDate}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {currentStep >= 2 && (
-                    <div>
-                      <DatePicker
-                        selectedDate={selectedDate}
-                        onDateSelect={(date) => handleDateSelect(date)}
-                      />
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {t.youCanBook || "You can book appointments up to one year in advance"}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            <Card
+  className={
+    currentStep >= 2
+      ? "ring-2 ring-primary"
+      : currentStep < 2
+      ? "opacity-50"
+      : ""
+  }
+>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <div
+        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+          currentStep >= 2
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted text-muted-foreground"
+        }`}
+      >
+        2
+      </div>
+      {t.selectDate}
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    {currentStep >= 2 && (
+      <div>
+        <DatePicker
+          selectedDate={selectedDate}
+          onDateSelect={(date) => handleDateSelect(date)}
+        />
+        <p className="text-sm text-muted-foreground mt-2">
+          {t.youCanBook || "You can book appointments up to one year in advance"}
+        </p>
+      </div>
+    )}
+  </CardContent>
+</Card>
 
             {/* Step 3: Select Time */}
             <Card className={currentStep >= 3 ? "ring-2 ring-primary" : currentStep < 3 ? "opacity-50" : ""}>
@@ -386,7 +404,7 @@ export default function BookAppointment() {
                       const isSelected = form.getValues("appointmentTime") === time;
                       
                       return (
-                        <Button
+                       <Button
                           key={time}
                           variant={isSelected ? "default" : "outline"}
                           className={`h-12 flex items-center gap-2 ${
@@ -505,7 +523,7 @@ export default function BookAppointment() {
           </div>
 
           {/* Right Side - Summary */}
-           <div className="space-y-6">
+          <div className="space-y-6">
             <Card className="sticky top-8">
               <CardHeader>
                 <CardTitle>{t.appointmentSummary || "Appointment Summary"}</CardTitle>
@@ -560,7 +578,6 @@ export default function BookAppointment() {
                 )}
               </CardContent>
             </Card>
-
 
             {/* Opening Hours */}
             <Card>
