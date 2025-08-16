@@ -14,7 +14,7 @@ export default function Contact() {
             {t.contactUs || "Contact Us"}
           </h1>
           <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-            {t.getInTouchDesc || "Get in touch with Elite Cuts. We're here to help with any questions or to schedule your next appointment."}
+            {t.getInTouchDesc || "Get in touch with Nærum Frisør. We're here to help with any questions or to schedule your next appointment."}
           </p>
         </div>
       </section>
@@ -46,9 +46,8 @@ export default function Contact() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-base">
-                      123 Barber Street<br />
-                      City, State 12345<br />
-                      United States
+                      Nærum Hovedgade 52, 2850 Nærum<br />
+                      Nærum Danmark<br />
                     </CardDescription>
                   </CardContent>
                 </Card>
@@ -64,7 +63,7 @@ export default function Contact() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-base">
-                      (555) 123-4567<br />
+                      <br />
                       <span className="text-sm">Call for appointments</span>
                     </CardDescription>
                   </CardContent>
@@ -81,7 +80,7 @@ export default function Contact() {
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-base">
-                      info@elitecuts.com<br />
+                      info@frisørnærum.dk<br />
                       <span className="text-sm">General inquiries</span>
                     </CardDescription>
                   </CardContent>
@@ -99,8 +98,8 @@ export default function Contact() {
                   <CardContent>
                     <CardDescription className="text-base">
                       Mon-Fri: 9:00 AM - 7:00 PM<br />
-                      Sat: 8:00 AM - 6:00 PM<br />
-                      Sun: 10:00 AM - 4:00 PM
+                      Sat: 9:00 AM - 6:00 PM<br />
+                      Sun: 9:00 AM - 6:00 PM
                     </CardDescription>
                   </CardContent>
                 </Card>
@@ -135,7 +134,7 @@ export default function Contact() {
       <section className="py-16 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-foreground mb-6">
-            {t.whyVisitEliteCuts || "Why Visit Elite Cuts?"}
+            {t.whyVisitEliteCuts || "Why Visit Nærum Frisør?"}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
