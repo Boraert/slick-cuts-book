@@ -389,35 +389,38 @@ export default function BookAppointment() {
                   {t.selectService || "Select Service"}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 gap-3">
-                  {services.map((service) => (
-                    <Button
-                      key={service.id}
-                      variant={selectedService === service.id ? "default" : "outline"}
-                      className={`h-auto p-4 flex items-center justify-between gap-3 ${
-                        service.featured ? "ring-2 ring-accent" : ""
-                      }`}
-                      onClick={() => handleServiceSelect(service.id)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <service.icon className="h-5 w-5" />
-                        <div className="text-left">
-                          <div className="font-medium">{service.name}</div>
-                          <div className="text-sm text-muted-foreground">{service.description}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-accent">{service.price}</div>
-                        <div className="text-sm text-muted-foreground flex items-center">
-                          <Timer className="h-3 w-3 mr-1" />
-                          {service.duration} min
-                        </div>
-                      </div>
-                    </Button>
-                  ))}
+              <CardContent className="p-3 sm:p-6">
+          <div className="grid grid-cols-1 gap-2 sm:gap-3">
+            {services.map((service) => (
+              <Button
+                key={service.id}
+                variant={selectedService === service.id ? "default" : "outline"}
+                className={`h-auto p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-left ${
+                  service.featured ? "ring-2 ring-accent" : ""
+                }`}
+                onClick={() => handleServiceSelect(service.id)}
+              >
+                {/* Mobile Layout: Stacked */}
+                <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
+                  <service.icon className="h-5 w-5 mt-0.5 sm:mt-0 flex-shrink-0" />
+                  <div className="flex-1 sm:flex-none">
+                    <div className="font-medium text-base sm:text-sm leading-tight">{service.name}</div>
+                    <div className="text-sm text-muted-foreground mt-0.5 leading-tight">{service.description}</div>
+                  </div>
                 </div>
-              </CardContent>
+                
+                {/* Price and Duration */}
+                <div className="flex items-center justify-between w-full sm:w-auto sm:text-right gap-4 mt-1 sm:mt-0">
+                  <div className="font-bold text-lg sm:text-base text-accent">{service.price}</div>
+                  <div className="text-sm text-muted-foreground flex items-center">
+                    <Timer className="h-3 w-3 mr-1" />
+                    {service.duration} min
+                  </div>
+                </div>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
             </Card>
 
             {/* Step 2: Select Barber */}
