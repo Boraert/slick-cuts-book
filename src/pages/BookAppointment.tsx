@@ -334,7 +334,7 @@ export default function BookAppointment() {
                         <img 
                           src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
                           alt={barber.name}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-16 w-16 rounded-full object-cover"
                         />
                       ) : (
                         <User className="h-5 w-5" />
@@ -537,7 +537,7 @@ export default function BookAppointment() {
                         <img 
                           src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
                           alt={barber.name}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-16 w-16 rounded-full object-cover"
                         />
                       ) : (
                         <User className="h-5 w-5 text-primary" />
