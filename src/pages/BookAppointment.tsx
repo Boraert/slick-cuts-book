@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Clock, User, Calendar } from "lucide-react";
+import { CheckCircle2, Clock, User, Calendar, Scissors, Star, Sparkles, Timer } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS, ar } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,6 +21,7 @@ const bookingSchema = z.object({
   customerEmail: z.string().email("Please enter a valid email address"),
   customerPhone: z.string().min(10, "Please enter a valid phone number"),
   barberId: z.string().min(1, "Please select a barber"),
+  serviceType: z.string().min(1, "Please select a service"),
   appointmentDate: z.string().min(1, "Please select a date"),
   appointmentTime: z.string().min(1, "Please select a time"),
   notificationPreference: z.enum(["email", "sms"], {
@@ -34,6 +35,7 @@ type BookingFormData = z.infer<typeof bookingSchema>;
 export default function BookAppointment() {
   const [barbers, setBarbers] = useState<any[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<string>("");
+  const [selectedService, setSelectedService] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
@@ -47,6 +49,55 @@ export default function BookAppointment() {
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
   });
+
+  // Service definitions - matching your database enum values
+  const services = [
+    {
+      id: "haircut",
+      name: t.mensHaircut || "Men's Haircut",
+      price: "190 DKK",
+      duration: 30,
+      description: t.mensHaircutDesc || "Professional men's haircut with styling",
+      icon: Scissors,
+      featured: false,
+    },
+    {
+      id: "child_haircut",
+      name: t.childHaircut || "Child's Haircut",
+      price: "150 DKK",
+      duration: 30,
+      description: t.childHaircutDesc || "Kid-friendly haircut in a comfortable environment",
+      icon: Scissors,
+      featured: false,
+    },
+    {
+      id: "senior_haircut",
+      name: t.pensionerHaircut || "Pensioner Haircut",
+      price: "100 DKK", 
+      duration: 30,
+      description: t.pensionerHaircutDesc || "Special pricing for senior citizens",
+      icon: Scissors,
+      featured: false,
+    },
+    {
+      id: "beard_trim",
+      name: t.beardTrim || "Beard Trim",
+      price: "150 DKK",
+      duration: 20,
+      description: t.beardTrimDesc || "Professional beard trimming and shaping",
+      icon: Sparkles,
+      featured: false,
+    },
+    {
+      id: "full_package",
+      name: t.haircutAndBeard || "Haircut & Beard",
+      price: "230–260 DKK",
+      duration: 50,
+      description: t.haircutAndBeardDesc || "Complete grooming package",
+      icon: Star,
+      featured: true,
+    }
+  ];
 
   useEffect(() => {
     loadBarbers();
@@ -183,7 +234,7 @@ export default function BookAppointment() {
           customer_email: data.customerEmail,
           customer_phone: data.customerPhone,
           barber_id: data.barberId,
-          service_type: null,
+          service_type: data.serviceType,
           appointment_date: data.appointmentDate,
           appointment_time: data.appointmentTime,
           status: "confirmed",
@@ -197,6 +248,8 @@ export default function BookAppointment() {
       // Send notification
       try {
         const selectedBarber = barbers.find(b => b.id === data.barberId);
+        const selectedServiceDetails = services.find(s => s.id === data.serviceType);
+        
         await supabase.functions.invoke('send-booking-notification', {
           body: {
             customerName: data.customerName,
@@ -205,6 +258,8 @@ export default function BookAppointment() {
             appointmentDate: data.appointmentDate,
             appointmentTime: data.appointmentTime,
             barberName: selectedBarber?.name || 'Your preferred barber',
+            serviceName: selectedServiceDetails?.name || 'Selected service',
+            servicePrice: selectedServiceDetails?.price || '',
             notificationPreference: data.notificationPreference,
           },
         });
@@ -230,21 +285,27 @@ export default function BookAppointment() {
     }
   };
 
+  const handleServiceSelect = (serviceId: string) => {
+    setSelectedService(serviceId);
+    form.setValue("serviceType", serviceId);
+    setCurrentStep(2);
+  };
+
   const handleBarberSelect = (barberId: string) => {
     setSelectedBarber(barberId);
     form.setValue("barberId", barberId);
-    setCurrentStep(2);
+    setCurrentStep(3);
   };
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     form.setValue("appointmentDate", date);
-    setCurrentStep(3);
+    setCurrentStep(4);
   };
 
   const handleTimeSelect = (time: string) => {
     form.setValue("appointmentTime", time);
-    setCurrentStep(4);
+    setCurrentStep(5);
   };
 
   const getDateLocale = () => {
@@ -255,7 +316,13 @@ export default function BookAppointment() {
     }
   };
 
+  const getSelectedService = () => {
+    return services.find(s => s.id === selectedService);
+  };
+
   if (isSubmitted) {
+    const selectedServiceDetails = services.find(s => s.id === form.getValues("serviceType"));
+    
     return (
       <div className="min-h-screen bg-background py-12">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -274,6 +341,7 @@ export default function BookAppointment() {
                 <div className="bg-muted p-4 rounded-lg">
                   <h3 className="font-semibold mb-2">{t.appointmentDetailsTitle}</h3>
                   <div className="text-sm text-muted-foreground space-y-1">
+                    <p><span className="font-medium">{t.service || "Service"}:</span> {selectedServiceDetails?.name} ({selectedServiceDetails?.price})</p>
                     <p><span className="font-medium">{t.date}:</span> {form.getValues("appointmentDate")}</p>
                     <p><span className="font-medium">{t.time}:</span> {form.getValues("appointmentTime")}</p>
                     <p><span className="font-medium">{t.preferredBarber}:</span> {barbers.find(b => b.id === form.getValues("barberId"))?.name}</p>
@@ -311,92 +379,121 @@ export default function BookAppointment() {
               </p>
             </div>
 
-            {/* Step 1: Select Barber */}
+            {/* Step 1: Select Service */}
             <Card className={currentStep >= 1 ? "ring-2 ring-primary" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     1
                   </div>
-                  {t.selectBarber}
+                  {t.selectService || "Select Service"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {barbers.map((barber) => (
+                <div className="grid grid-cols-1 gap-3">
+                  {services.map((service) => (
                     <Button
-                      key={barber.id}
-                      variant={selectedBarber === barber.id ? "default" : "outline"}
-                      className="h-auto p-4 flex items-center gap-3"
-                      onClick={() => handleBarberSelect(barber.id)}
+                      key={service.id}
+                      variant={selectedService === service.id ? "default" : "outline"}
+                      className={`h-auto p-4 flex items-center justify-between gap-3 ${
+                        service.featured ? "ring-2 ring-accent" : ""
+                      }`}
+                      onClick={() => handleServiceSelect(service.id)}
                     >
-                      {barber.photo_path ? (
-                        <img 
-                          src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
-                          alt={barber.name}
-                          className="h-16 w-16 rounded-full object-cover"
-                        />
-                      ) : (
-                        <User className="h-5 w-5" />
-                      )}
-                      <span>{barber.name}</span>
+                      <div className="flex items-center gap-3">
+                        <service.icon className="h-5 w-5" />
+                        <div className="text-left">
+                          <div className="font-medium">{service.name}</div>
+                          <div className="text-sm text-muted-foreground">{service.description}</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-accent">{service.price}</div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          <Timer className="h-3 w-3 mr-1" />
+                          {service.duration} min
+                        </div>
+                      </div>
                     </Button>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Step 2: Select Date */}
-            <Card
-  className={
-    currentStep >= 2
-      ? "ring-2 ring-primary"
-      : currentStep < 2
-      ? "opacity-50"
-      : ""
-  }
->
-  <CardHeader>
-    <CardTitle className="flex items-center gap-2">
-      <div
-        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-          currentStep >= 2
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
-        }`}
-      >
-        2
-      </div>
-      {t.selectDate}
-    </CardTitle>
-  </CardHeader>
-  <CardContent>
-    {currentStep >= 2 && (
-      <div>
-        <DatePicker
-          selectedDate={selectedDate}
-          onDateSelect={(date) => handleDateSelect(date)}
-        />
-        <p className="text-sm text-muted-foreground mt-2">
-          {t.youCanBook || "You can book appointments up to one year in advance"}
-        </p>
-      </div>
-    )}
-  </CardContent>
-</Card>
+            {/* Step 2: Select Barber */}
+            <Card className={currentStep >= 2 ? "ring-2 ring-primary" : currentStep < 2 ? "opacity-50" : ""}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                    2
+                  </div>
+                  {t.selectBarber}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {currentStep >= 2 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {barbers.map((barber) => (
+                      <Button
+                        key={barber.id}
+                        variant={selectedBarber === barber.id ? "default" : "outline"}
+                        className="h-auto p-4 flex items-center gap-3"
+                        onClick={() => handleBarberSelect(barber.id)}
+                      >
+                        {barber.photo_path ? (
+                          <img 
+                            src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
+                            alt={barber.name}
+                            className="h-16 w-16 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )}
+                        <span>{barber.name}</span>
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            {/* Step 3: Select Time */}
+            {/* Step 3: Select Date */}
             <Card className={currentStep >= 3 ? "ring-2 ring-primary" : currentStep < 3 ? "opacity-50" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
                     3
                   </div>
-                  {t.selectTime}
+                  {t.selectDate}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {currentStep >= 3 && (
+                  <div>
+                    <DatePicker
+                      selectedDate={selectedDate}
+                      onDateSelect={(date) => handleDateSelect(date)}
+                    />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {t.youCanBook || "You can book appointments up to one year in advance"}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Step 4: Select Time */}
+            <Card className={currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : ""}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 4 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                    4
+                  </div>
+                  {t.selectTime}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {currentStep >= 4 && (
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {allTimeSlots.map((time) => {
                       const isAvailable = availableSlots.includes(time);
@@ -432,18 +529,18 @@ export default function BookAppointment() {
               </CardContent>
             </Card>
 
-            {/* Step 4: Customer Details */}
-            <Card className={currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : ""}>
+            {/* Step 5: Customer Details */}
+            <Card className={currentStep >= 5 ? "ring-2 ring-primary" : currentStep < 5 ? "opacity-50" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 4 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                    4
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 5 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                    5
                   </div>
                   {t.customerDetails || "Customer Details"}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {currentStep >= 4 && (
+                {currentStep >= 5 && (
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -529,6 +626,20 @@ export default function BookAppointment() {
                 <CardTitle>{t.appointmentSummary || "Appointment Summary"}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {selectedService && (
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    {(() => {
+                      const service = getSelectedService();
+                      const IconComponent = service?.icon || Scissors;
+                      return <IconComponent className="h-5 w-5 text-primary" />;
+                    })()}
+                    <div>
+                      <p className="font-medium">{getSelectedService()?.name}</p>
+                      <p className="text-sm text-muted-foreground">{getSelectedService()?.price}</p>
+                    </div>
+                  </div>
+                )}
+
                 {selectedBarber && (
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                     {(() => {
@@ -570,7 +681,7 @@ export default function BookAppointment() {
                   </div>
                 )}
 
-                {!selectedBarber && !selectedDate && !form.getValues("appointmentTime") && (
+                {!selectedService && !selectedBarber && !selectedDate && !form.getValues("appointmentTime") && (
                   <div className="text-center py-8 text-muted-foreground">
                     <Calendar className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p>{t.selectOptionsToSee || "Select options to see summary"}</p>
