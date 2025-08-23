@@ -9,17 +9,35 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { CheckCircle2, Clock, User, Calendar, Scissors, Star, Sparkles, Timer } from "lucide-react";
+import { CheckCircle2, Clock, User, Calendar, Scissors, Star, Sparkles, Timer, Heart, Crown, Palette } from "lucide-react";
 import { format } from "date-fns";
 import { da, enUS, ar } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DatePicker from "@/components/DatePicker";
+import servicesData from "@/utils/services.json";
 
+interface Service {
+  id: string;
+  name: string;
+  name_da?: string;
+  description: string;
+  description_da?: string;
+  price: number;
+  category: "men" | "women";
+  duration?: string;
+  tags?: string[];
+  tags_da?: string[];
+  features?: string[];
+  features_da?: string[];
+  featured?: boolean;
+  is_active?: boolean;
+  icon?: string;
+}
 
 const bookingSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
   customerEmail: z.string().email("Please enter a valid email address"),
-  customerPhone: z.string().min(10, "Please enter a valid phone number"),
+  customerPhone: z.string().min(8, "Please enter a valid phone number"),
   barberId: z.string().min(1, "Please select a barber"),
   serviceType: z.string().min(1, "Please select a service"),
   appointmentDate: z.string().min(1, "Please select a date"),
@@ -31,8 +49,8 @@ const bookingSchema = z.object({
 
 type BookingFormData = z.infer<typeof bookingSchema>;
 
-
 export default function BookAppointment() {
+  const [services, setServices] = useState<Service[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
   const [selectedBarber, setSelectedBarber] = useState<string>("");
   const [selectedService, setSelectedService] = useState<string>("");
@@ -42,7 +60,9 @@ export default function BookAppointment() {
   const [allTimeSlots, setAllTimeSlots] = useState<string[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [servicesLoading, setServicesLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState<'men' | 'women' | null>(null);
   const { toast } = useToast();
   const { t, language } = useLanguage();
 
@@ -50,56 +70,79 @@ export default function BookAppointment() {
     resolver: zodResolver(bookingSchema),
   });
 
-  // Service definitions - matching your database enum values
-  const services = [
-    {
-      id: "haircut",
-      name: t.mensHaircut || "Men's Haircut",
-      price: "190 DKK",
-      duration: 30,
-      description: t.mensHaircutDesc || "Professional men's haircut with styling",
-      icon: Scissors,
-      featured: false,
-    },
-    {
-      id: "child_haircut",
-      name: t.childHaircut || "Child's Haircut",
-      price: "150 DKK",
-      duration: 30,
-      description: t.childHaircutDesc || "Kid-friendly haircut in a comfortable environment",
-      icon: Scissors,
-      featured: false,
-    },
-    {
-      id: "senior_haircut",
-      name: t.pensionerHaircut || "Pensioner Haircut",
-      price: "100 DKK", 
-      duration: 30,
-      description: t.pensionerHaircutDesc || "Special pricing for senior citizens",
-      icon: Scissors,
-      featured: false,
-    },
-    {
-      id: "beard_trim",
-      name: t.beardTrim || "Beard Trim",
-      price: "150 DKK",
-      duration: 20,
-      description: t.beardTrimDesc || "Professional beard trimming and shaping",
-      icon: Sparkles,
-      featured: false,
-    },
-    {
-      id: "full_package",
-      name: t.haircutAndBeard || "Haircut & Beard",
-      price: "230–260 DKK",
-      duration: 50,
-      description: t.haircutAndBeardDesc || "Complete grooming package",
-      icon: Star,
-      featured: true,
+  // Icon mapping for services
+  const getServiceIcon = (iconName?: string) => {
+    const iconMap: { [key: string]: any } = {
+      'Scissors': Scissors,
+      'Star': Star,
+      'Sparkles': Sparkles,
+      'Heart': Heart,
+      'Crown': Crown,
+      'Palette': Palette,
+      'Timer': Timer,
+    };
+    return iconMap[iconName || 'Scissors'] || Scissors;
+  };
+
+  // Add the missing formatPrice function
+  const formatPrice = (price: number) => {
+    return `${price} DKK`;
+  };
+
+  // Add the missing handleCategorySelect function
+  const handleCategorySelect = (category: 'men' | 'women') => {
+    setSelectedCategory(category);
+    setSelectedService(""); // Reset selected service when changing category
+    form.setValue("serviceType", ""); // Reset form value
+  };
+
+  const processServicesData = (data: any[]): Service[] => {
+    if (!Array.isArray(data)) {
+      console.error('Services data is not an array, using empty array');
+      return [];
     }
-  ];
+
+    return data
+      .map((service: any, index: number) => {
+        if (!service.id || !service.name || !service.category) {
+          console.warn(`Service at index ${index} is missing required fields (id, name, category)`);
+        }
+        
+        return {
+          id: String(service.id || `service-${index + 1}`),
+          name: String(service.name || `Service ${index + 1}`),
+          name_da: service.name_da,
+          description: service.description || '',
+          description_da: service.description_da,
+          price: service.price ? Number(service.price) : 0,
+          category: (service.category as "men" | "women") || "men",
+          duration: service.duration || undefined,
+          tags: Array.isArray(service.tags) ? service.tags : [],
+          tags_da: Array.isArray(service.tags_da) ? service.tags_da : [],
+          features: Array.isArray(service.features) ? service.features : [],
+          features_da: Array.isArray(service.features_da) ? service.features_da : [],
+          featured: Boolean(service.featured),
+          is_active: Boolean(service.is_active !== false), // default to true
+          icon: service.icon
+        };
+      })
+      .filter(service => service.is_active); // Only show active services
+  };
+
+  function loadServices() {
+    setServicesLoading(true);
+    try {
+      const processedServices = processServicesData(servicesData);
+      setServices(processedServices);
+    } catch (error) {
+      console.error('Error processing services data:', error);
+      setServices([]);
+    }
+    setServicesLoading(false);
+  }
 
   useEffect(() => {
+    loadServices();
     loadBarbers();
   }, []);
 
@@ -108,6 +151,19 @@ export default function BookAppointment() {
       loadAvailableSlots();
     }
   }, [selectedBarber, selectedDate]);
+
+  // Helper function to get localized content
+  const getLocalizedContent = (service: Service, field: keyof Service): string | string[] => {
+    const danishField = `${field}_da` as keyof Service;
+    if (language === 'da' && service[danishField]) {
+      return service[danishField] as string | string[];
+    }
+    return service[field] as string | string[];
+  };
+
+  // Filter services by category
+  const getServicesByCategory = (category: "men" | "women") =>
+    services.filter((s) => s.category === category);
 
   const loadBarbers = async () => {
     try {
@@ -183,7 +239,6 @@ export default function BookAppointment() {
     setAllTimeSlots([]);
   }
 };
-
 
   const generateTimeSlots = (startTime: string, endTime: string) => {
     const slots = [];
@@ -323,7 +378,7 @@ export default function BookAppointment() {
   if (isSubmitted) {
     const selectedServiceDetails = services.find(s => s.id === form.getValues("serviceType"));
     
-    return (
+   return (
       <div className="min-h-screen bg-background py-12">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="text-center">
@@ -363,13 +418,14 @@ export default function BookAppointment() {
     );
   }
 
+  const menServices = getServicesByCategory("men");
+  const womenServices = getServicesByCategory("women");
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Side - Booking Steps */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Header */}
             <div className="text-center lg:text-left">
               <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
                 {t.bookYourAppointment}
@@ -379,7 +435,7 @@ export default function BookAppointment() {
               </p>
             </div>
 
-            {/* Step 1: Select Service */}
+            {/* Step 1: Select Service Category and Service */}
             <Card className={currentStep >= 1 ? "ring-2 ring-primary" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -390,37 +446,90 @@ export default function BookAppointment() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-3 sm:p-6">
-          <div className="grid grid-cols-1 gap-2 sm:gap-3">
-            {services.map((service) => (
-              <Button
-                key={service.id}
-                variant={selectedService === service.id ? "default" : "outline"}
-                className={`h-auto p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-left ${
-                  service.featured ? "ring-2 ring-accent" : ""
-                }`}
-                onClick={() => handleServiceSelect(service.id)}
-              >
-                {/* Mobile Layout: Stacked */}
-                <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
-                  <service.icon className="h-5 w-5 mt-0.5 sm:mt-0 flex-shrink-0" />
-                  <div className="flex-1 sm:flex-none">
-                    <div className="font-medium text-base sm:text-sm leading-tight">{service.name}</div>
-                    <div className="text-sm text-muted-foreground mt-0.5 leading-tight">{service.description}</div>
+                {!selectedCategory ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Button
+                      variant="outline"
+                      className="h-24 flex flex-col items-center gap-2 text-center"
+                      onClick={() => handleCategorySelect('men')}
+                    >
+                      <Scissors className="h-8 w-8" />
+                      <div>
+                        <div className="font-bold">{language === 'da' ? 'Herretjenester' : 'Men\'s Services'}</div>
+                        <div className="text-sm text-muted-foreground">{menServices.length} {language === 'da' ? 'tjenester tilgængelige' : 'services available'}</div>
+                      </div>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-24 flex flex-col items-center gap-2 text-center"
+                      onClick={() => handleCategorySelect('women')}
+                    >
+                      <Heart className="h-8 w-8" />
+                      <div>
+                        <div className="font-bold">{language === 'da' ? 'Dametjenester' : 'Women\'s Services'}</div>
+                        <div className="text-sm text-muted-foreground">{womenServices.length} {language === 'da' ? 'tjenester tilgængelige' : 'services available'}</div>
+                      </div>
+                    </Button>
                   </div>
-                </div>
-                
-                {/* Price and Duration */}
-                <div className="flex items-center justify-between w-full sm:w-auto sm:text-right gap-4 mt-1 sm:mt-0">
-                  <div className="font-bold text-lg sm:text-base text-accent">{service.price}</div>
-                  <div className="text-sm text-muted-foreground flex items-center">
-                    <Timer className="h-3 w-3 mr-1" />
-                    {service.duration} min
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">
+                        {selectedCategory === 'men' 
+                          ? (language === 'da' ? 'Herretjenester' : 'Men\'s Services')
+                          : (language === 'da' ? 'Dametjenester' : 'Women\'s Services')
+                        }
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedCategory(null)}
+                      >
+                        {language === 'da' ? 'Skift Kategori' : 'Change Category'}
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2 sm:gap-3">
+                      {(selectedCategory === 'men' ? menServices : womenServices).map((service) => {
+                        const IconComponent = getServiceIcon(service.icon);
+                        return (
+                          <Button
+                            key={service.id}
+                            variant={selectedService === service.id ? "default" : "outline"}
+                            className={`h-auto p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-left ${
+                              service.featured ? "ring-2 ring-accent" : ""
+                            }`}
+                            onClick={() => handleServiceSelect(service.id)}
+                          >
+                            <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto">
+                              <IconComponent className="h-5 w-5 mt-0.5 sm:mt-0 flex-shrink-0" />
+                              <div className="flex-1 sm:flex-none">
+                                <div className="font-medium text-base sm:text-sm leading-tight">
+                                  {getLocalizedContent(service, 'name') as string}
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-0.5 leading-tight">
+                                  {getLocalizedContent(service, 'description') as string}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between w-full sm:w-auto sm:text-right gap-4 mt-1 sm:mt-0">
+                              <div className="font-bold text-lg sm:text-base text-accent">
+                                {formatPrice(service.price)}
+                              </div>
+                              {service.duration && (
+                                <div className="text-sm text-muted-foreground flex items-center">
+                                  <Timer className="h-3 w-3 mr-1" />
+                                  {service.duration}
+                                </div>
+                              )}
+                            </div>
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
+                )}
+              </CardContent>
             </Card>
 
             {/* Step 2: Select Barber */}
@@ -477,60 +586,86 @@ export default function BookAppointment() {
                       selectedDate={selectedDate}
                       onDateSelect={(date) => handleDateSelect(date)}
                     />
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {t.youCanBook || "You can book appointments up to one year in advance"}
-                    </p>
+                   
                   </div>
                 )}
               </CardContent>
             </Card>
 
             {/* Step 4: Select Time */}
-            <Card className={currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : ""}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 4 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                    4
-                  </div>
-                  {t.selectTime}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {currentStep >= 4 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                    {allTimeSlots.map((time) => {
-                      const isAvailable = availableSlots.includes(time);
-                      const isBooked = bookedSlots.includes(time);
-                      const isSelected = form.getValues("appointmentTime") === time;
-                      
-                      return (
-                       <Button
-                          key={time}
-                          variant={isSelected ? "default" : "outline"}
-                          className={`h-12 flex items-center gap-2 ${
-                            isBooked 
-                              ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed hover:bg-red-50" 
-                              : isAvailable 
-                                ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100" 
-                                : "bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed"
-                          }`}
-                          onClick={() => isAvailable && !isBooked && handleTimeSelect(time)}
-                          disabled={!isAvailable || isBooked}
-                        >
-                          <Clock className="h-4 w-4" />
-                          {time}
-                        </Button>
-                      );
-                    })}
-                    {allTimeSlots.length === 0 && selectedDate && (
-                      <div className="col-span-full text-center py-8 text-muted-foreground">
-                        {t.noAvailableSlots || "No time slots available for this date"}
+            <Card className={ currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : "" }>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                          currentStep >= 4
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        4
+                      </div>
+                      {t.selectTime}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {currentStep >= 4 && (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        {allTimeSlots
+                          .filter((time) => {
+                            if (!selectedDate) return true;
+
+                            const now = new Date();
+                            const selected = new Date(selectedDate);
+                            const isToday = selected.toDateString() === now.toDateString();
+
+                            if (isToday) {
+                              // Parse "HH:MM" into today's date
+                              const [hours, minutes] = time.split(":").map(Number);
+                              const slotDate = new Date(selected);
+                              slotDate.setHours(hours, minutes, 0, 0);
+
+                              return slotDate > now; // only future slots
+                            }
+
+                            return true; // keep all for future dates
+                          })
+                          .map((time) => {
+                            const isAvailable = availableSlots.includes(time);
+                            const isBooked = bookedSlots.includes(time);
+                            const isSelected = form.getValues("appointmentTime") === time;
+
+                            return (
+                              <Button
+                                key={time}
+                                variant={isSelected ? "default" : "outline"}
+                                className={`h-12 flex items-center gap-2 ${
+                                  isBooked
+                                    ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed hover:bg-red-50"
+                                    : isAvailable
+                                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                                    : "bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed"
+                                }`}
+                                onClick={() =>
+                                  isAvailable && !isBooked && handleTimeSelect(time)
+                                }
+                                disabled={!isAvailable || isBooked}
+                              >
+                                <Clock className="h-4 w-4" />
+                                {time}
+                              </Button>
+                            );
+                          })}
+
+                        {allTimeSlots.length === 0 && selectedDate && (
+                          <div className="col-span-full text-center py-8 text-muted-foreground">
+                            {t.noAvailableSlots || "No time slots available for this date"}
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
 
             {/* Step 5: Customer Details */}
             <Card className={currentStep >= 5 ? "ring-2 ring-primary" : currentStep < 5 ? "opacity-50" : ""}>
@@ -633,12 +768,12 @@ export default function BookAppointment() {
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                     {(() => {
                       const service = getSelectedService();
-                      const IconComponent = service?.icon || Scissors;
+                      const IconComponent = service ? getServiceIcon(service.icon) : Scissors;
                       return <IconComponent className="h-5 w-5 text-primary" />;
                     })()}
                     <div>
-                      <p className="font-medium">{getSelectedService()?.name}</p>
-                      <p className="text-sm text-muted-foreground">{getSelectedService()?.price}</p>
+                      <p className="font-medium">{getLocalizedContent(getSelectedService()!, 'name') as string}</p>
+                      <p className="text-sm text-muted-foreground">{formatPrice(getSelectedService()?.price || 0)}</p>
                     </div>
                   </div>
                 )}
@@ -651,7 +786,7 @@ export default function BookAppointment() {
                         <img 
                           src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
                           alt={barber.name}
-                          className="h-16 w-16 rounded-full object-cover"
+                          className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
                         <User className="h-5 w-5 text-primary" />
@@ -674,7 +809,7 @@ export default function BookAppointment() {
                   </div>
                 )}
 
-               {form.watch("appointmentTime") && (
+                {form.watch("appointmentTime") && (
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                     <Clock className="h-5 w-5 text-primary" />
                     <div>

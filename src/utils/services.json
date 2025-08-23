@@ -1,0 +1,249 @@
+[
+ {
+    "id": "haircut",
+    "name": "Men's Haircut",
+    "name_da": "Herreklip",
+    "description": "Precision haircut for men with styling",
+    "description_da": "Præcisionsklipning til mænd med styling",
+    "price": 190,
+    "category": "men",
+    "duration": "30 min",
+    "tags": ["Popular", "Classic", "Styling"],
+    "tags_da": ["Populær", "Klassisk", "Styling"],
+    "features": [
+      "Consultation and hair analysis",
+      "Precision cutting",
+      "Professional styling",
+      "Finishing touches"
+    ],
+    "features_da": [
+      "Konsultation og håranalyse",
+      "Præcisionsklipning",
+      "Professionel styling",
+      "Afsluttende touch"
+    ],
+    "featured": false,
+    "is_active": true
+  },
+  {
+    "id": "child_haircut",
+    "name": "Children's Haircut (under 12 years)",
+    "name_da": "Børneklip (under 12 år)",
+    "description": "Gentle haircut for children under 12 years",
+    "description_da": "Skånsom klipning til børn under 12 år",
+    "price": 150,
+    "category": "men",
+    "duration": "30 min",
+    "tags": ["Kids", "Family", "Gentle"],
+    "tags_da": ["Børn", "Familie", "Skånsom"],
+    "features": [
+      "Child-friendly environment",
+      "Patient and gentle approach",
+      "Fun styling options",
+      "Small gift included",
+      "Parent consultation"
+    ],
+    "features_da": [
+      "Børnevenligt miljø",
+      "Tålmodig og blid tilgang",
+      "Sjove styling muligheder",
+      "Lille gave inkluderet",
+      "Forældrekonsultation"
+    ],
+    "featured": false,
+    "is_active": true
+  },
+  {
+    "id": "senior_haircut",
+    "name": "Senior Haircut",
+    "name_da": "Pensionistklip",
+    "description": "Affordable and gentle haircut for seniors",
+    "description_da": "Prisvenlig og pæn klipning til pensionister",
+    "price": 100,
+    "category": "men",
+    "duration": "30 min",
+    "tags": ["Senior", "Affordable", "Gentle"],
+    "tags_da": ["Pensionist", "Prisvenlig", "Skånsom"],
+    "features": [
+      "Comfortable seating",
+      "Patient service",
+      "Classic styling",
+      "Easy maintenance cuts",
+      "Flexible scheduling"
+    ],
+    "features_da": [
+      "Komfortable siddepladser",
+      "Tålmodig service",
+      "Klassisk styling",
+      "Nemme vedligeholdelses klipninger",
+      "Fleksibel booking"
+    ],
+    "featured": false,
+    "is_active": true
+  },
+  {
+    "id": "beard_trim",
+    "name": "Beard Trimming",
+    "name_da": "Skægtrimning",
+    "description": "Professional beard trimming and styling",
+    "description_da": "Professionel skægtrimning og styling",
+    "price": 150,
+    "category": "men",
+    "duration": "20 min",
+    "tags": ["Grooming", "Beard Care", "Quick"],
+    "tags_da": ["Pleje", "Skægpleje", "Hurtig"],
+    "features": [
+      "Beard consultation",
+      "Precise trimming",
+      "Shape and contour",
+      "Styling advice"
+    ],
+    "features_da": [
+      "Skægkonsultation",
+      "Præcis trimning",
+      "Form og kontur",
+      "Styling råd"
+    ],
+    "featured": false,
+    "is_active": true
+  },
+  {
+    "id": "full_package",
+    "name": "Cut & Beard",
+    "name_da": "Klip & Skæg",
+    "description": "Complete grooming service for hair and beard",
+    "description_da": "Fuld grooming service til hår og skæg",
+    "price": 260,
+    "category": "men",
+    "duration": "50 min",
+    "tags": ["Complete", "Grooming", "Premium"],
+    "tags_da": ["Komplet", "Pleje", "Premium"],
+    "features": [
+      "Full consultation",
+      "Precision haircut",
+      "Professional beard trimming",
+      "Hair and beard styling",
+      "Premium products"
+    ],
+    "features_da": [
+      "Fuld konsultation",
+      "Præcisions hårklipning",
+      "Professionel skægtrimning",
+      "Hår og skæg styling",
+      "Premium produkter"
+    ],
+    "featured": true,
+    "is_active": true
+  },
+  {
+    "id": "womens-cut-color",
+    "name": "Cut & Color",
+    "name_da": "Klipning & Farve",
+    "description": "Complete hair transformation with professional cut and color services.",
+    "description_da": "Komplet hårtransformation med professionel klipning og farvetjenester.",
+    "price": 800,
+    "category": "women",
+    "duration": "2-3 hours",
+    "tags": ["Transform", "Color", "Style"],
+    "tags_da": ["Transformation", "Farve", "Stil"],
+    "features": [
+      "Color consultation",
+      "Premium hair color products",
+      "Professional cutting technique",
+      "Deep conditioning treatment",
+      "Blow dry and styling"
+    ],
+    "features_da": [
+      "Farvekonsultation",
+      "Premium hårfarveprodukter",
+      "Professionel klipningsteknik",
+      "Dyb konditioneringsbehandling",
+      "Føntørring og styling"
+    ],
+    "featured": true,
+    "is_active": true
+  },
+  {
+    "id": "womens-styling",
+    "name": "Special Event Styling",
+    "name_da": "Speciel Event Styling",
+    "description": "Perfect styling for weddings, parties, and special occasions.",
+    "description_da": "Perfekt styling til bryllupper, fester og særlige lejligheder.",
+    "price": 450,
+    "category": "women",
+    "duration": "1-1.5 hours",
+    "tags": ["Events", "Elegant", "Special"],
+    "tags_da": ["Events", "Elegant", "Speciel"],
+    "features": [
+      "Style consultation",
+      "Professional updo or styling",
+      "Hair accessories if needed",
+      "Long-lasting hold products",
+      "Touch-up råd"
+    ],
+    "featured": false,
+    "is_active": false
+  },
+  
+  {
+    "id": "hair-treatment",
+    "name": "Deep Hair Treatment",
+    "name_da": "Dyb Hårbehandling",
+    "description": "Intensive hair repair and nourishing treatment for damaged or dry hair.",
+    "description_da": "Intensiv hårreparation og næring behandling for beskadiget eller tørt hår.",
+    "price": 400,
+    "category": "women",
+    "duration": "1 hour",
+    "tags": ["Treatment", "Repair", "Nourishing"],
+    "tags_da": ["Behandling", "Reparation", "Nærende"],
+    "features": [
+      "Hair analysis and consultation",
+      "Deep cleansing shampoo",
+      "Intensive treatment mask",
+      "Scalp massage",
+      "Protective styling products",
+      "Home care recommendations"
+    ],
+    "features_da": [
+      "Håranalyse og konsultation",
+      "Dybrensende shampoo",
+      "Intensiv behandlingsmaske",
+      "Hovedbund massage",
+      "Beskyttende stylingprodukter",
+      "Hjemmepleje anbefalinger"
+    ],
+    "featured": false,
+    "is_active": false
+  },
+  
+  {
+    "id": "bridal-package",
+    "name": "Bridal Hair Package",
+    "name_da": "Brud Hår Pakke",
+    "description": "Complete bridal hair service including trial, wedding day styling and touch-ups.",
+    "description_da": "Komplet brud hår service inklusive prøve, bryllupsdags styling og touch-ups.",
+    "price": 1200,
+    "category": "women",
+    "duration": "4 hours total",
+    "tags": ["Bridal", "Wedding", "Premium", "Complete"],
+    "tags_da": ["Brud", "Bryllup", "Premium", "Komplet"],
+    "features": [
+      "Pre-wedding consultation and trial",
+      "Wedding day on-location service",
+      "Professional styling for ceremony",
+      "Touch-up for reception",
+      "Hair accessories coordination",
+      "Emergency repair kit"
+    ],
+    "features_da": [
+      "Før-bryllup konsultation og prøve",
+      "Bryllupsdags service på lokation",
+      "Professionel styling til ceremoni",
+      "Touch-up til receptionen",
+      "Hårtilbehør koordination",
+      "Nødreparations kit"
+    ],
+    "featured": true,
+    "is_active": false
+  }
+] 
