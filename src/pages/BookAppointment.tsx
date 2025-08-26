@@ -42,9 +42,7 @@ const bookingSchema = z.object({
   serviceType: z.string().min(1, "Please select a service"),
   appointmentDate: z.string().min(1, "Please select a date"),
   appointmentTime: z.string().min(1, "Please select a time"),
-  notificationPreference: z.enum(["email", "sms"], {
-    required_error: "Please select how you'd like to receive notifications",
-  }),
+  
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
@@ -293,7 +291,6 @@ export default function BookAppointment() {
           appointment_date: data.appointmentDate,
           appointment_time: data.appointmentTime,
           status: "confirmed",
-          notification_preference: data.notificationPreference,
         });
 
       if (error) {
@@ -315,7 +312,7 @@ export default function BookAppointment() {
             barberName: selectedBarber?.name || 'Your preferred barber',
             serviceName: selectedServiceDetails?.name || 'Selected service',
             servicePrice: selectedServiceDetails?.price || '',
-            notificationPreference: data.notificationPreference,
+            
           },
         });
       } catch (notificationError) {
@@ -725,28 +722,7 @@ export default function BookAppointment() {
                         )}
                       />
 
-                      <FormField
-                        control={form.control}
-                        name="notificationPreference"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t.notificationPreference || "How would you like to receive notifications?"}</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder={t.selectNotificationMethod || "Select notification method"} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="email">{t.email || "Email"}</SelectItem>
-                                <SelectItem value="sms">{t.sms || "SMS"}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
+                      
                       <Button type="submit" className="w-full" disabled={isLoading} size="lg">
                         {isLoading ? t.booking : t.bookAppointment}
                       </Button>
