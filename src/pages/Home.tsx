@@ -40,12 +40,12 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/book">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 {t.bookAppointment}
               </Button>
             </Link>
             <Link to="/services">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 {t.viewServices}
               </Button>
             </Link>
