@@ -302,19 +302,23 @@ export default function BookAppointment() {
         const selectedBarber = barbers.find(b => b.id === data.barberId);
         const selectedServiceDetails = services.find(s => s.id === data.serviceType);
         
-        await supabase.functions.invoke('send-booking-notification', {
-          body: {
-            customerName: data.customerName,
-            customerEmail: data.customerEmail,
-            customerPhone: data.customerPhone,
-            appointmentDate: data.appointmentDate,
-            appointmentTime: data.appointmentTime,
-            barberName: selectedBarber?.name || 'Your preferred barber',
-            serviceName: selectedServiceDetails?.name || 'Selected service',
-            servicePrice: selectedServiceDetails?.price || '',
-            
-          },
-        });
+          const functionName = language === "da" 
+            ? "send-booking-notification-dk" 
+            : "send-booking-notification";
+
+          await supabase.functions.invoke(functionName, {
+            body: {
+              customerName: data.customerName,
+              customerEmail: data.customerEmail,
+              customerPhone: data.customerPhone,
+              appointmentDate: data.appointmentDate,
+              appointmentTime: data.appointmentTime,
+              barberName: selectedBarber?.name || "Your preferred barber",
+              serviceName: selectedServiceDetails?.name || "Selected service",
+              servicePrice: selectedServiceDetails?.price || "",
+            },
+          });
+
       } catch (notificationError) {
         console.error("Notification error:", notificationError);
         // Don't fail the booking if notification fails
