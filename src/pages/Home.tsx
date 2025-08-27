@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary to-accent py-20 lg:py-32">
+      <section className="relative bg-gradient-to-br from-primary via-primary to-accent py-30 lg:py-72">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl lg:text-6xl font-bold text-primary-foreground mb-6">
             {t.heroTitle}
@@ -52,6 +52,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      
+
 
       {/* Services Section */}
       <Services />
