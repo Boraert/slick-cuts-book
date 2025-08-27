@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -64,9 +64,32 @@ export default function BookAppointment() {
   const { toast } = useToast();
   const { t, language } = useLanguage();
 
+  // Refs for auto-scrolling
+  const step1Ref = useRef<HTMLDivElement>(null);
+  const step2Ref = useRef<HTMLDivElement>(null);
+  const step3Ref = useRef<HTMLDivElement>(null);
+  const step4Ref = useRef<HTMLDivElement>(null);
+  const step5Ref = useRef<HTMLDivElement>(null);
+
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
   });
+
+  // Auto-scroll function
+  const scrollToStep = (stepNumber: number) => {
+    const refs = [null, step1Ref, step2Ref, step3Ref, step4Ref, step5Ref];
+    const targetRef = refs[stepNumber];
+    
+    if (targetRef?.current) {
+      setTimeout(() => {
+        targetRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      }, 150); // Small delay to allow for state updates
+    }
+  };
 
   // Icon mapping for services
   const getServiceIcon = (iconName?: string) => {
@@ -291,6 +314,7 @@ export default function BookAppointment() {
           appointment_date: data.appointmentDate,
           appointment_time: data.appointmentTime,
           status: "confirmed",
+          
         });
 
       if (error) {
@@ -302,22 +326,23 @@ export default function BookAppointment() {
         const selectedBarber = barbers.find(b => b.id === data.barberId);
         const selectedServiceDetails = services.find(s => s.id === data.serviceType);
         
-          const functionName = language === "da" 
-            ? "send-booking-notification-dk" 
-            : "send-booking-notification";
+         const functionName = language === "da" 
+    ? "send-booking-notification-dk" 
+    : "send-booking-notification";
 
-          await supabase.functions.invoke(functionName, {
-            body: {
-              customerName: data.customerName,
-              customerEmail: data.customerEmail,
-              customerPhone: data.customerPhone,
-              appointmentDate: data.appointmentDate,
-              appointmentTime: data.appointmentTime,
-              barberName: selectedBarber?.name || "Your preferred barber",
-              serviceName: selectedServiceDetails?.name || "Selected service",
-              servicePrice: selectedServiceDetails?.price || "",
-            },
-          });
+  await supabase.functions.invoke(functionName, {
+    body: {
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      customerPhone: data.customerPhone,
+      appointmentDate: data.appointmentDate,
+      appointmentTime: data.appointmentTime,
+      barberName: selectedBarber?.name || "Your preferred barber",
+      serviceName: selectedServiceDetails?.name || "Selected service",
+      servicePrice: selectedServiceDetails?.price || "",
+    },
+  });
+
 
       } catch (notificationError) {
         console.error("Notification error:", notificationError);
@@ -345,23 +370,27 @@ export default function BookAppointment() {
     setSelectedService(serviceId);
     form.setValue("serviceType", serviceId);
     setCurrentStep(2);
+    scrollToStep(2);
   };
 
   const handleBarberSelect = (barberId: string) => {
     setSelectedBarber(barberId);
     form.setValue("barberId", barberId);
     setCurrentStep(3);
+    scrollToStep(3);
   };
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     form.setValue("appointmentDate", date);
     setCurrentStep(4);
+    scrollToStep(4);
   };
 
   const handleTimeSelect = (time: string) => {
     form.setValue("appointmentTime", time);
     setCurrentStep(5);
+    scrollToStep(5);
   };
 
   const getDateLocale = () => {
@@ -437,7 +466,7 @@ export default function BookAppointment() {
             </div>
 
             {/* Step 1: Select Service Category and Service */}
-            <Card className={currentStep >= 1 ? "ring-2 ring-primary" : ""}>
+            <Card ref={step1Ref} className={currentStep >= 1 ? "ring-2 ring-primary" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -451,7 +480,7 @@ export default function BookAppointment() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Button
                       variant="outline"
-                      className="h-24 flex flex-col items-center gap-2 text-center"
+                      className="h-24 flex flex-col items-center gap-2 text-center hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-colors"
                       onClick={() => handleCategorySelect('men')}
                     >
                       <Scissors className="h-8 w-8" />
@@ -462,7 +491,7 @@ export default function BookAppointment() {
                     </Button>
                     <Button
                       variant="outline"
-                      className="h-24 flex flex-col items-center gap-2 text-center"
+                      className="h-24 flex flex-col items-center gap-2 text-center hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-colors"
                       onClick={() => handleCategorySelect('women')}
                     >
                       <Heart className="h-8 w-8" />
@@ -496,7 +525,7 @@ export default function BookAppointment() {
                           <Button
                             key={service.id}
                             variant={selectedService === service.id ? "default" : "outline"}
-                            className={`h-auto p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-left ${
+                            className={`h-auto p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 text-left hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-colors ${
                               service.featured ? "ring-2 ring-accent" : ""
                             }`}
                             onClick={() => handleServiceSelect(service.id)}
@@ -534,7 +563,7 @@ export default function BookAppointment() {
             </Card>
 
             {/* Step 2: Select Barber */}
-            <Card className={currentStep >= 2 ? "ring-2 ring-primary" : currentStep < 2 ? "opacity-50" : ""}>
+            <Card ref={step2Ref} className={currentStep >= 2 ? "ring-2 ring-primary" : currentStep < 2 ? "opacity-50" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -550,7 +579,7 @@ export default function BookAppointment() {
                       <Button
                         key={barber.id}
                         variant={selectedBarber === barber.id ? "default" : "outline"}
-                        className="h-auto p-4 flex items-center gap-3"
+                        className="h-auto p-4 flex items-center gap-3 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700 transition-colors"
                         onClick={() => handleBarberSelect(barber.id)}
                       >
                         {barber.photo_path ? (
@@ -571,7 +600,7 @@ export default function BookAppointment() {
             </Card>
 
             {/* Step 3: Select Date */}
-            <Card className={currentStep >= 3 ? "ring-2 ring-primary" : currentStep < 3 ? "opacity-50" : ""}>
+            <Card ref={step3Ref} className={currentStep >= 3 ? "ring-2 ring-primary" : currentStep < 3 ? "opacity-50" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -594,7 +623,7 @@ export default function BookAppointment() {
             </Card>
 
             {/* Step 4: Select Time */}
-            <Card className={ currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : "" }>
+            <Card ref={step4Ref} className={ currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : "" }>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <div
@@ -640,11 +669,13 @@ export default function BookAppointment() {
                               <Button
                                 key={time}
                                 variant={isSelected ? "default" : "outline"}
-                                className={`h-12 flex items-center gap-2 ${
-                                  isBooked
+                                className={`h-12 flex items-center gap-2 transition-colors ${
+                                  isSelected
+                                    ? "" // Let the default variant handle the dark styling
+                                    : isBooked
                                     ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed hover:bg-red-50"
                                     : isAvailable
-                                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
                                     : "bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed"
                                 }`}
                                 onClick={() =>
@@ -669,7 +700,7 @@ export default function BookAppointment() {
                 </Card>
 
             {/* Step 5: Customer Details */}
-            <Card className={currentStep >= 5 ? "ring-2 ring-primary" : currentStep < 5 ? "opacity-50" : ""}>
+            <Card ref={step5Ref} className={currentStep >= 5 ? "ring-2 ring-primary" : currentStep < 5 ? "opacity-50" : ""}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 5 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -727,6 +758,7 @@ export default function BookAppointment() {
                       />
 
                       
+
                       <Button type="submit" className="w-full" disabled={isLoading} size="lg">
                         {isLoading ? t.booking : t.bookAppointment}
                       </Button>

@@ -62,7 +62,7 @@ export default function DatePicker({ selectedDate, onDateSelect, className }: Da
             size="sm"
             onClick={() => navigateMonth("prev")}
             disabled={isSameMonth(currentMonth, today)}
-            className="hover:bg-gray-200 rounded-md p-1"
+            className="hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -75,7 +75,7 @@ export default function DatePicker({ selectedDate, onDateSelect, className }: Da
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth("next")}
-            className="hover:bg-gray-200 rounded-md p-1"
+            className="hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -109,8 +109,8 @@ export default function DatePicker({ selectedDate, onDateSelect, className }: Da
                 className={[
                   "h-10 w-full text-sm flex items-center justify-center rounded-md border transition-colors",
                   disabled && "bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200",
-                  !disabled && !isSelected && "bg-green-50 text-green-700 border-green-300 hover:bg-green-100",
-                  isSelected && "bg-green-600 text-white border-green-600",
+                  !disabled && !isSelected && "bg-green-50 border-green-200 text-green-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700",
+                  isSelected && "bg-primary text-primary-foreground border-primary",
                 ].filter(Boolean).join(" ")}
               >
                 {format(date, "d")}
@@ -119,7 +119,9 @@ export default function DatePicker({ selectedDate, onDateSelect, className }: Da
           })}
         </div>
 
-        
+        <div className="mt-3 text-xs text-gray-500 text-center">
+          You can book up to one year in advance
+        </div>
       </CardContent>
     </Card>
   );
