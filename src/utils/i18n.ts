@@ -237,8 +237,8 @@ export const translations: Record<Language, Translations> = {
     wednesday: 'Wednesday',
     thursday: 'Thursday',
     friday: 'Friday',
-    saturday: 'Saturday',
-    sunday: 'Sunday',
+    saturday: 'Saturday - from 09:00 to 18:00',
+    sunday: 'Sunday - closed',
     closed: 'Closed',
 
     // Booking confirmation
@@ -441,8 +441,8 @@ export const translations: Record<Language, Translations> = {
     wednesday: 'Onsdag',
     thursday: 'Torsdag',
     friday: 'Fredag',
-    saturday: 'Lørdag',
-    sunday: 'Søndag',
+    saturday: 'Lørdag - fra 09:00 til 18:00',
+    sunday: 'Søndag - lukket ',
     closed: 'Lukket',
     youCanBook: "Du kan booke aftaler op til et år i forvejen",
 
