@@ -159,7 +159,7 @@ export function Layout({ children }: LayoutProps) {
 
                 <div className="flex justify-between">
                   <span>{t.mondayFriday}</span>
-                  <span>09:00 - 16:00</span>
+                  <span>09:00 - 18:00</span>
                 </div>
                 <div className="flex justify-between">
                   <span>{t.saturday || "Saturday"}</span>

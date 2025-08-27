@@ -344,7 +344,7 @@ export const translations: Record<Language, Translations> = {
     mondayFriday: 'Monday - Friday',
 
     // Footer
-    professionalBarbershopFooter: 'Professional barbershop services with traditional craftsmanship and modern style in Nærum.',
+    professionalBarbershopFooter: 'Herrefrisør i Nærum med fokus på stilfulde klipninger, barbering og skægpleje. Vi kombinerer høj kvalitet med personlig service, så du altid går herfra velklædt og tilfreds.',
     allRightsReserved: 'All rights reserved.'
   },
 
@@ -513,7 +513,7 @@ export const translations: Record<Language, Translations> = {
     email: 'Email: info@frisørnærum.dk',
 
     // Hours
-    mondayFriday: 'Mandag - Fredag: 9:00 - 19:00',
+    mondayFriday: 'Mandag - Fredag',
 
     // Footer
     professionalBarbershopFooter: 'Professionelle barbertjenester med traditionelt håndværk og moderne stil i København.',
@@ -688,7 +688,7 @@ export const translations: Record<Language, Translations> = {
     
 
     // Hours
-    mondayFriday: 'الاثنين - الجمعة: ٩:٠٠ ص - ٧:٠٠ م',
+    mondayFriday: 'الاثنين - الجمعة',
 
     // Footer
     professionalBarbershopFooter: 'خدمات حلاقة احترافية مع الحرفية التقليدية والأناقة الحديثة في Nærum.',
