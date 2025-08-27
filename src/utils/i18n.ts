@@ -341,7 +341,7 @@ export const translations: Record<Language, Translations> = {
     email: 'Email: info@frisørnærum.dk',
 
     // Hours
-    mondayFriday: 'Monday - Friday: 9:00 AM - 7:00 PM',
+    mondayFriday: 'Monday - Friday',
 
     // Footer
     professionalBarbershopFooter: 'Professional barbershop services with traditional craftsmanship and modern style in Nærum.',
