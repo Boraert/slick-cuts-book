@@ -34,15 +34,19 @@ interface Service {
   icon?: string;
 }
 
+// Updated schema with Danish phone number validation
 const bookingSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
   customerEmail: z.string().email("Please enter a valid email address"),
-  customerPhone: z.string().min(8, "Please enter a valid phone number"),
+  customerPhone: z.string()
+    .min(8, "Please enter a valid Danish phone number")
+    .max(8, "Danish phone number should be 8 digits")
+    .regex(/^\d{8}$/, "Please enter 8 digits without spaces or +45"),
+  
   barberId: z.string().min(1, "Please select a barber"),
   serviceType: z.string().min(1, "Please select a service"),
   appointmentDate: z.string().min(1, "Please select a date"),
   appointmentTime: z.string().min(1, "Please select a time"),
-  
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
@@ -115,6 +119,32 @@ export default function BookAppointment() {
     setSelectedCategory(category);
     setSelectedService(""); // Reset selected service when changing category
     form.setValue("serviceType", ""); // Reset form value
+  };
+
+  // Phone number formatting function
+  const formatPhoneForDatabase = (phone: string): string => {
+    // Remove any existing country code, spaces, dashes, or other formatting
+    const cleanPhone = phone.replace(/^\+45|[\s\-\(\)]/g, '');
+    
+    // Add Danish country code
+    return `+45${cleanPhone}`;
+  };
+
+  // Phone number input formatter
+  const handlePhoneInput = (value: string, onChange: (value: string) => void) => {
+    // Remove any non-digit characters and limit to 8 digits
+    const cleaned = value.replace(/\D/g, '').slice(0, 8);
+    
+    // Format as XX XX XX XX for display
+    let formatted = cleaned;
+    if (cleaned.length >= 2) {
+      formatted = cleaned.match(/.{1,2}/g)?.join(' ') || cleaned;
+    }
+    
+    // Update form with clean digits only (for validation)
+    onChange(cleaned);
+    
+    return formatted;
   };
 
   const processServicesData = (data: any[]): Service[] => {
@@ -302,19 +332,21 @@ export default function BookAppointment() {
         return;
       }
 
+      // Format phone number with +45 prefix
+      const formattedPhone = formatPhoneForDatabase(data.customerPhone);
+
       // Insert the new appointment
       const { error } = await (supabase as any)
         .from("appointments")
         .insert({
           customer_name: data.customerName,
           customer_email: data.customerEmail,
-          customer_phone: data.customerPhone,
+          customer_phone: formattedPhone, // Use formatted phone with +45
           barber_id: data.barberId,
           service_type: data.serviceType,
           appointment_date: data.appointmentDate,
           appointment_time: data.appointmentTime,
           status: "confirmed",
-          
         });
 
       if (error) {
@@ -334,7 +366,7 @@ export default function BookAppointment() {
     body: {
       customerName: data.customerName,
       customerEmail: data.customerEmail,
-      customerPhone: data.customerPhone,
+      customerPhone: formattedPhone, // Use formatted phone with +45
       appointmentDate: data.appointmentDate,
       appointmentTime: data.appointmentTime,
       barberName: selectedBarber?.name || "Your preferred barber",
@@ -342,7 +374,6 @@ export default function BookAppointment() {
       servicePrice: selectedServiceDetails?.price || "",
     },
   });
-
 
       } catch (notificationError) {
         console.error("Notification error:", notificationError);
@@ -735,9 +766,27 @@ export default function BookAppointment() {
                             <FormItem>
                               <FormLabel>{t.phoneNumber}</FormLabel>
                               <FormControl>
-                                <Input placeholder="+45 12 34 56 78" {...field} />
+                                <div className="relative">
+                                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                                    +45
+                                  </div>
+                                  <Input
+                                    placeholder="12 34 56 78"
+                                    className="pl-12"
+                                    value={field.value ? handlePhoneInput(field.value, () => {}) : ''}
+                                    onChange={(e) => {
+                                      const formatted = handlePhoneInput(e.target.value, field.onChange);
+                                      // Update the display value
+                                      e.target.value = formatted;
+                                    }}
+                                    maxLength={11} // Allow for spaces in display
+                                  />
+                                </div>
                               </FormControl>
                               <FormMessage />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {language === 'da' ? 'Indtast 8 cifre uden +45' : 'Enter 8 digits without +45'}
+                              </p>
                             </FormItem>
                           )}
                         />
@@ -756,8 +805,6 @@ export default function BookAppointment() {
                           </FormItem>
                         )}
                       />
-
-                      
 
                       <Button type="submit" className="w-full" disabled={isLoading} size="lg">
                         {isLoading ? t.booking : t.bookAppointment}
