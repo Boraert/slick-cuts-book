@@ -155,9 +155,20 @@ export function Layout({ children }: LayoutProps) {
             <div>
               <h3 className="text-lg font-semibold mb-4">{t.hours}</h3>
               <div className="space-y-2 text-muted-foreground">
-                <p>{t.mondayFriday}</p>
-                <p>{t.saturday}</p>
-                <p>{t.sunday}</p>
+                
+
+                <div className="flex justify-between">
+                  <span>{t.mondayFriday}</span>
+                  <span>09:00 - 16:00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t.saturday || "Saturday"}</span>
+                  <span>09:00 - 16:00</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>{t.sunday || "Sunday"}</span>
+                  <span className="text-muted-foreground">{t.closed || "Closed"}</span>
+                </div>
               </div>
             </div>
           </div>
