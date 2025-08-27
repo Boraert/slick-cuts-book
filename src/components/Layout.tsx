@@ -29,7 +29,11 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <Scissors className="h-8 w-8 text-accent" />
+              <img 
+                src="/logo192.png" 
+                alt="Frisør Nærum Logo" 
+                className="h-10 w-auto" 
+              />
               <span className="text-xl font-bold text-foreground">Frisør Nærum</span>
             </Link>
 
@@ -119,9 +123,20 @@ export function Layout({ children }: LayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Scissors className="h-6 w-6 text-accent" />
-                <span className="text-lg font-bold">Frisør Nærum</span>
-              </div>
+                
+             
+
+            <Link to="/" className="flex items-center space-x-2">
+              <img 
+                src="/logo192.png" 
+                alt="Frisør Nærum Logo" 
+                className="h-10 w-auto" 
+              />
+              <span className="text-xl font-bold text-foreground">Frisør Nærum</span>
+            </Link>
+
+             </div>
+
               <p className="text-muted-foreground">
                 {t.professionalBarbershopFooter}
               </p>
