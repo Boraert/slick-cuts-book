@@ -358,9 +358,7 @@ export default function BookAppointment() {
         const selectedBarber = barbers.find(b => b.id === data.barberId);
         const selectedServiceDetails = services.find(s => s.id === data.serviceType);
         
-         const functionName = language === "da" 
-    ? "send-booking-notification-dk" 
-    : "send-booking-notification";
+         const functionName = "send-booking-notification";
 
   await supabase.functions.invoke(functionName, {
     body: {

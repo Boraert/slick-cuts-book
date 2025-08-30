@@ -12,10 +12,22 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, isFuture, parseISO } from "date-fns";
 import BarberPhotoUpload from "@/components/BarberPhotoUpload";
-import { Calendar, Clock, Users, LogOut, ArrowUpDown, Filter, Plus, Trash2, PencilLine, Save, X, FileText, Upload } from "lucide-react";
+import { Calendar, Clock, Users, LogOut, ArrowUpDown, Filter, Plus, Trash2, PencilLine, Save, X, FileText, Upload, AlertTriangle } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
 import servicesData from "@/utils/services.json";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 /* =========================
    Types
@@ -264,6 +276,131 @@ export default function AdminDashboard() {
   /* =========================
      Appointments helpers
   ========================= */
+  const deleteAppointment = async (appointment: Appointment) => {
+  try {
+    // First, verify the appointment exists
+    const { data: existingAppointment, error: fetchError } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("id", appointment.id)
+      .single();
+      
+    if (fetchError) {
+      console.error('Error fetching appointment:', fetchError);
+      throw fetchError;
+    }
+    
+    if (!existingAppointment) {
+      throw new Error('Appointment not found');
+    }
+    // Delete the appointment entirely
+    const { data: deleteData, error: deleteError } = await supabase
+      .from("appointments")
+      .delete()
+      .eq("id", appointment.id)
+      .select(); // This will return the deleted row if successful
+
+    if (deleteError) {
+      console.error('Database delete error:', deleteError);
+      throw deleteError;
+    }
+    
+    if (!deleteData || deleteData.length === 0) {
+      throw new Error('No rows were deleted - check your RLS policies or constraints');
+    }
+    
+    // Wait a moment before refreshing to ensure database consistency
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Refresh appointments data
+    await loadData();
+
+    toast({
+      title: "Appointment Deleted",
+      description: `${appointment.customer_name}'s appointment has been deleted and they have been notified.`,
+    });
+  } catch (error: any) {  
+    toast({
+      title: "Error",
+      description: error?.message || "Failed to delete appointment.",
+      variant: "destructive",
+    });
+  }
+};
+
+const cancelAppointment = async (appointment: Appointment) => {
+  try {
+    // Verify appointment exists
+    const { data: existingAppointment, error: fetchError } = await supabase
+      .from("appointments")
+      .select("*")
+      .eq("id", appointment.id)
+      .single();
+
+    if (fetchError || !existingAppointment) {
+      throw new Error('Appointment not found or fetch failed');
+    }
+    // Update appointment status
+    const { data: updateData, error: updateError } = await supabase
+      .from("appointments")
+      .update({ status: "cancelled" })
+      .eq("id", appointment.id)
+      .select();
+
+    if (updateError || !updateData?.length) {
+      throw new Error('Failed to update appointment (check RLS policies)');
+    }
+    // Prepare notification payload
+    const barberName = getBarberName(appointment.barber_id);
+    const formattedDate = (() => {
+      try {
+        return format(parseISO(appointment.appointment_date), "d. MMMM yyyy");
+      } catch {
+        return appointment.appointment_date;
+      }
+    })();
+
+    const requestBody = {
+      customerName: appointment.customer_name,
+      customerEmail: appointment.customer_email,
+      customerPhone: appointment.customer_phone,
+      appointmentDate: formattedDate,
+      appointmentTime: appointment.appointment_time,
+      barberName,
+    };
+
+    // Call cancellation notification function
+    const { data, error: notificationError } = await supabase.functions.invoke(
+      'send-cancellation-email', // ✅ make sure this matches your deployed function name
+      { body: requestBody }
+    );
+    if (notificationError) {
+      toast({
+        title: "Warning",
+        description: "Appointment cancelled but notification failed.",
+        variant: "destructive",
+      });
+    } else {
+    }
+
+    // Refresh UI
+    await loadData();
+
+    toast({
+      title: "Appointment Cancelled",
+      description: `${appointment.customer_name}'s appointment has been cancelled.`,
+    });
+
+  } catch (error: any) {
+    console.error("=== CANCEL APPOINTMENT ERROR ===", error);
+    toast({
+      title: "Error",
+      description: error?.message || "Failed to cancel appointment.",
+      variant: "destructive",
+    });
+  }
+};
+
 
   const sortAppointments = (appointments: Appointment[]) => {
     return [...appointments].sort((a, b) => {
@@ -789,6 +926,7 @@ export default function AdminDashboard() {
                           </Button>
                         </TableHead>
                         <TableHead>Booked On</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -823,6 +961,78 @@ export default function AdminDashboard() {
                           <TableCell className="text-sm text-muted-foreground">
                             {format(parseISO(appointment.created_at), "MMM d, yyyy")}
                           </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              {appointment.status !== "cancelled" && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                                    >
+                                      <AlertTriangle className="h-3 w-3 mr-1" />
+                                      Cancel
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to cancel {appointment.customer_name}'s appointment on{' '}
+                                        {format(parseISO(appointment.appointment_date), "MMMM d, yyyy")} at{' '}
+                                        {appointment.appointment_time}? 
+                                        <br /><br />
+                                        The customer will be automatically notified via email about the cancellation.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => cancelAppointment(appointment)}
+                                        className="bg-orange-600 hover:bg-orange-700"
+                                      >
+                                        Cancel Appointment
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              )}
+                              
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="destructive"
+                                  >
+                                    <Trash2 className="h-3 w-3 mr-1" />
+                                    Delete
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Appointment</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to permanently delete {appointment.customer_name}'s appointment on{' '}
+                                      {format(parseISO(appointment.appointment_date), "MMMM d, yyyy")} at{' '}
+                                      {appointment.appointment_time}? 
+                                      <br /><br />
+                                      <strong>This action cannot be undone.</strong> The customer will be notified via email about the cancellation.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => deleteAppointment(appointment)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete Permanently
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -847,6 +1057,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
 
           {/* =========================
               Barber Management
