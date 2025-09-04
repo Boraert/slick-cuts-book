@@ -364,7 +364,7 @@ export const translations: Record<Language, Translations> = {
 
     // Hero section
     heroTitle: 'Velkommen til Frisør Nærum.',
-    heroSubtitle: 'Oplev den fineste barbertradition med moderne stil i hjertet af København. Professionelle klipninger, ekspertservice, tidløs håndværk.',
+    heroSubtitle: 'Oplev den fineste barbertradition med moderne stil i hjertet af Nærum. Professionelle klipninger, ekspertservice, tidløs håndværk.',
     viewServices: 'Se Tjenester',
 
     // Services
