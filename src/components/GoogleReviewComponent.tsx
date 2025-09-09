@@ -14,7 +14,7 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
   googleBusinessUrl = "https://www.google.com/maps/place/Fris%C3%B8r+N%C3%A6rum/@55.8198566,12.5345827,619m/data=!3m1!1e3!4m8!3m7!1s0x46524fc7791ab43d:0x974d045b7dbfdcc9!8m2!3d55.8198566!4d12.5371576!9m1!1b1!16s%2Fg%2F11xp883j_d?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D",
   placeId = "/Fris%C3%B8r+N%C3%A6rum/@55.8198566,12.5345827,619m/data=!3m1!1e3!4m8!3m7!1s0x46524fc7791ab43d:0x974d045b7dbfdcc9!8m2!3d55.8198566!4d12.5371576!9m1!1b1!16s%2Fg%2F11xp883j_d?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D",
   discountPercentage = 10,
-  logoPath = "../public/logo192.png", // Default logo path - change this to match your logo file
+  logoPath = "/logo192.png", // Default logo path - change this to match your logo file
   onReviewClick
 }) => {
   const handleStarClick = (star: HTMLElement) => {
