@@ -15,6 +15,7 @@ import { da, enUS, ar } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
 import DatePicker from "@/components/DatePicker";
 import servicesData from "@/utils/services.json";
+import TimePicker from "@/components/TimePicker";
 
 interface Service {
   id: string;
@@ -652,81 +653,33 @@ export default function BookAppointment() {
             </Card>
 
             {/* Step 4: Select Time */}
-            <Card ref={step4Ref} className={ currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : "" }>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                          currentStep >= 4
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        4
-                      </div>
-                      {t.selectTime}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {currentStep >= 4 && (
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                        {allTimeSlots
-                          .filter((time) => {
-                            if (!selectedDate) return true;
+           <Card ref={step4Ref} className={currentStep >= 4 ? "ring-2 ring-primary" : currentStep < 4 ? "opacity-50" : ""}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${currentStep >= 4 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                    4
+                  </div>
+                  {t.selectTime}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {currentStep >= 4 && (
+                  <div>
+                    <TimePicker
+                      selectedDate={selectedDate}
+                      selectedTime={form.getValues("appointmentTime")}
+                      barberId={selectedBarber}
+                      bookedSlots={bookedSlots}
+                      onTimeSelect={(time) => {
+                        form.setValue("appointmentTime", time);
+                        setCurrentStep(5); // 👈 go to step 5 after picking time
+                      }}
+                    />
 
-                            const now = new Date();
-                            const selected = new Date(selectedDate);
-                            const isToday = selected.toDateString() === now.toDateString();
-
-                            if (isToday) {
-                              // Parse "HH:MM" into today's date
-                              const [hours, minutes] = time.split(":").map(Number);
-                              const slotDate = new Date(selected);
-                              slotDate.setHours(hours, minutes, 0, 0);
-
-                              return slotDate > now; // only future slots
-                            }
-
-                            return true; // keep all for future dates
-                          })
-                          .map((time) => {
-                            const isAvailable = availableSlots.includes(time);
-                            const isBooked = bookedSlots.includes(time);
-                            const isSelected = form.getValues("appointmentTime") === time;
-
-                            return (
-                              <Button
-                                key={time}
-                                variant={isSelected ? "default" : "outline"}
-                                className={`h-12 flex items-center gap-2 transition-colors ${
-                                  isSelected
-                                    ? "" // Let the default variant handle the dark styling
-                                    : isBooked
-                                    ? "bg-red-50 border-red-200 text-red-700 cursor-not-allowed hover:bg-red-50"
-                                    : isAvailable
-                                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-orange-50 hover:border-orange-300 hover:text-orange-700"
-                                    : "bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed"
-                                }`}
-                                onClick={() =>
-                                  isAvailable && !isBooked && handleTimeSelect(time)
-                                }
-                                disabled={!isAvailable || isBooked}
-                              >
-                                <Clock className="h-4 w-4" />
-                                {time}
-                              </Button>
-                            );
-                          })}
-
-                        {allTimeSlots.length === 0 && selectedDate && (
-                          <div className="col-span-full text-center py-8 text-muted-foreground">
-                            {t.noAvailableSlots || "No time slots available for this date"}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Step 5: Customer Details */}
             <Card ref={step5Ref} className={currentStep >= 5 ? "ring-2 ring-primary" : currentStep < 5 ? "opacity-50" : ""}>
