@@ -26,6 +26,41 @@
     "is_active": true
   },
   {
+  "id": "full_package",
+  "name": "Full Package",
+  "name_da": "Den fulde pakke",
+  "description": "Combine one of our available haircuts with beard trim and styling, followed by a full-face, ear, and nose waxing, plus a facial treatment including warm towel treatment, facial massage, finishing with a face mask and hair wash. Includes free pre-consultation, styling with wax or gel, and neck shaving.",
+  "description_da": "Kombiner en af vores tilgængelige hårklipninger med skægklip og styling, efterfulgt af en voksbehandling af hele ansigt, øre og næse samt en ansigts-behandling bestående, varm-håndklæde-behandling, ansigtsmassage, for at slutte af med en ansigtsmaske og en hårvask. Inkluderer gratis forudgående konsultation, styling med voks eller gele samt barbering af nakken.",
+  "price": 400,
+  "category": "men",
+  "duration": "40 min",
+  "tags": ["Full Package", "Luxury", "Complete Care"],
+  "tags_da": ["Den fulde pakke", "Luksus", "Komplet behandling"],
+  "features": [
+    "Haircut of choice",
+    "Beard trim and styling",
+    "Full-face, ear, and nose waxing",
+    "Facial treatment with warm towel and massage",
+    "Face mask and hair wash",
+    "Free pre-consultation",
+    "Styling with wax or gel",
+    "Neck shaving"
+  ],
+  "features_da": [
+    "Valgfri hårklipning",
+    "Skægklip og styling",
+    "Voksbehandling af hele ansigt, øre og næse",
+    "Ansigtsbehandling med varm håndklæde og massage",
+    "Ansigtsmaske og hårvask",
+    "Gratis forudgående konsultation",
+    "Styling med voks eller gele",
+    "Barbering af nakken"
+  ],
+  "featured": false,
+  "is_active": true
+}
+,
+  {
     "id": "child_haircut",
     "name": "Children's Haircut (under 12 years)",
     "name_da": "Børneklip (under 12 år)",
