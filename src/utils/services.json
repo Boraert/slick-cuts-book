@@ -7,7 +7,7 @@
     "description_da": "Præcisionsklipning til mænd med styling",
     "price": 190,
     "category": "men",
-    "duration": "30 min",
+    "duration": "20 min",
     "tags": ["Popular", "Classic", "Styling"],
     "tags_da": ["Populær", "Klassisk", "Styling"],
     "features": [
@@ -33,7 +33,7 @@
     "description_da": "Skånsom klipning til børn under 12 år",
     "price": 150,
     "category": "men",
-    "duration": "30 min",
+    "duration": "20 min",
     "tags": ["Kids", "Family", "Gentle"],
     "tags_da": ["Børn", "Familie", "Skånsom"],
     "features": [
@@ -61,7 +61,7 @@
     "description_da": "Prisvenlig og pæn klipning til pensionister",
     "price": 100,
     "category": "men",
-    "duration": "30 min",
+    "duration": "20 min",
     "tags": ["Senior", "Affordable", "Gentle"],
     "tags_da": ["Pensionist", "Prisvenlig", "Skånsom"],
     "features": [
@@ -89,7 +89,7 @@
     "description_da": "Professionel skægtrimning og styling",
     "price": 150,
     "category": "men",
-    "duration": "20 min",
+    "duration": "15 min",
     "tags": ["Grooming", "Beard Care", "Quick"],
     "tags_da": ["Pleje", "Skægpleje", "Hurtig"],
     "features": [
@@ -115,7 +115,7 @@
     "description_da": "Fuld grooming service til hår og skæg",
     "price": 260,
     "category": "men",
-    "duration": "50 min",
+    "duration": "30 min",
     "tags": ["Complete", "Grooming", "Premium"],
     "tags_da": ["Komplet", "Pleje", "Premium"],
     "features": [
