@@ -157,25 +157,11 @@ export default function TimePicker({
     return `${baseClass} bg-gray-50 border-gray-200 text-gray-500 cursor-not-allowed`;
   };
 
-  const availableCount = timeSlots.filter(slot => slot.available).length;
-  const totalCount = timeSlots.length;
+ 
 
   return (
     <Card className={`w-full rounded-lg border bg-white shadow-sm ${className || ""}`}>
-      <CardHeader className="pb-2 border-b bg-gray-50">
-        <CardTitle className="flex items-center justify-between text-base font-semibold text-gray-700">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            <span>{language === 'da' ? 'Vælg Tid' : 'Select Time'}</span>
-          </div>
-          {timeSlots.length > 0 && (
-            <span className="text-sm font-normal text-gray-500">
-              {availableCount}/{totalCount} {language === 'da' ? 'ledige' : 'available'}
-            </span>
-          )}
-        </CardTitle>
-      </CardHeader>
-
+      
       <CardContent className="p-4">
         {message ? (
           <div className="flex items-center justify-center gap-2 py-8 text-center text-muted-foreground">
@@ -208,10 +194,6 @@ export default function TimePicker({
                 );
               })}
             </div>
-
-            
-
-            
           </>
         )}
       </CardContent>
