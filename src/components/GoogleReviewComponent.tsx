@@ -5,6 +5,7 @@ interface GoogleReviewProps {
   googleBusinessUrl?: string;
   placeId?: string;
   discountPercentage?: number;
+  logoPath?: string; // New prop for custom logo
   onReviewClick?: () => void;
 }
 
@@ -13,6 +14,7 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
   googleBusinessUrl = "https://www.google.com/maps/place/Fris%C3%B8r+N%C3%A6rum/@55.8198566,12.5345827,619m/data=!3m1!1e3!4m8!3m7!1s0x46524fc7791ab43d:0x974d045b7dbfdcc9!8m2!3d55.8198566!4d12.5371576!9m1!1b1!16s%2Fg%2F11xp883j_d?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D",
   placeId = "/Fris%C3%B8r+N%C3%A6rum/@55.8198566,12.5345827,619m/data=!3m1!1e3!4m8!3m7!1s0x46524fc7791ab43d:0x974d045b7dbfdcc9!8m2!3d55.8198566!4d12.5371576!9m1!1b1!16s%2Fg%2F11xp883j_d?entry=ttu&g_ep=EgoyMDI1MDkwMy4wIKXMDSoASAFQAw%3D%3D",
   discountPercentage = 10,
+  logoPath = "/public/logo192.png", // Default logo path - change this to match your logo file
   onReviewClick
 }) => {
   const handleStarClick = (star: HTMLElement) => {
@@ -62,7 +64,7 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
       boxShadow: '0 10px 25px -5px hsl(var(--muted) / 0.3), 0 8px 10px -6px hsl(var(--muted) / 0.2)',
       textAlign: 'center' as const,
       maxWidth: '520px',
-      width: '90%',
+      width: '100%',
       position: 'relative' as const,
     } as React.CSSProperties,
 
@@ -74,18 +76,22 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
       gap: '16px',
     } as React.CSSProperties,
 
-    googleLogo: {
+    logoContainer: {
       width: '72px',
       height: '72px',
-      background: 'linear-gradient(135deg, #4285f4 0%, #ea4335 25%, #fbbc05 50%, #34a853 75%, #4285f4 100%)',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '32px',
-      color: 'white',
-      fontWeight: '600',
-      boxShadow: '0 4px 12px rgba(66, 133, 244, 0.3)',
+      overflow: 'hidden',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      border: '2px solid hsl(var(--border))',
+    } as React.CSSProperties,
+
+    logo: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const,
     } as React.CSSProperties,
 
     brandText: {
@@ -293,7 +299,23 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
     <div style={styles.body}>
       <div style={styles.container}>
         <div style={styles.brandHeader}>
-          <div style={styles.googleLogo}>G</div>
+          <div style={styles.logoContainer}>
+            <img 
+              src={logoPath} 
+              alt={`${salonName} logo`}
+              style={styles.logo}
+              onError={(e) => {
+                // Fallback if logo fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.style.background = 'linear-gradient(135deg, #4285f4 0%, #ea4335 25%, #fbbc05 50%, #34a853 75%, #4285f4 100%)';
+                  parent.innerHTML = '<div style="color: white; font-size: 32px; font-weight: 600;">G</div>';
+                }
+              }}
+            />
+          </div>
           <div style={styles.brandText}>
             <p style={styles.brandName}>{salonName}</p>
             <p style={styles.poweredBy}>Google Reviews</p>
