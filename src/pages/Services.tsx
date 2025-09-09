@@ -93,31 +93,33 @@ export default function Services() {
     services.filter((s) => s.category === category);
 
   const ServiceCard = ({ service }: { service: Service }) => (
-    <Card
-      className={`relative hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
-        service.featured ? "ring-2 ring-accent shadow-lg scale-105" : ""
-      }`}
-    >
-      {service.featured && (
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-          <Badge className="bg-accent text-accent-foreground px-4 py-1">
-            {t.mostPopular}
-          </Badge>
-        </div>
-      )}
+  <Card
+    className={`relative flex flex-col h-full hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
+      service.featured ? "ring-2 ring-accent shadow-lg scale-105" : ""
+    }`}
+  >
+    {service.featured && (
+      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+        <Badge className="bg-accent text-accent-foreground px-4 py-1">
+          {t.mostPopular}
+        </Badge>
+      </div>
+    )}
 
-      <CardHeader className="text-center pb-4">
-        <div className="mx-auto mb-4 p-4 bg-accent/10 rounded-full w-fit">
-          <Scissors className="h-10 w-10 text-accent" />
-        </div>
-        <CardTitle className="text-2xl mb-2">
-          {getLocalizedContent(service, 'name') as string}
-        </CardTitle>
+    <CardHeader className="text-center pb-4">
+      <div className="mx-auto mb-4 p-4 bg-accent/10 rounded-full w-fit">
+        <Scissors className="h-10 w-10 text-accent" />
+      </div>
+      <CardTitle className="text-2xl mb-2">
+        {getLocalizedContent(service, "name") as string}
+      </CardTitle>
 
-        {/* Tags */}
-        {(() => {
-          const tags = getLocalizedContent(service, 'tags') as string[];
-          return tags && tags.length > 0 && (
+      {/* Tags */}
+      {(() => {
+        const tags = getLocalizedContent(service, "tags") as string[];
+        return (
+          tags &&
+          tags.length > 0 && (
             <div className="flex flex-wrap justify-center gap-1 mb-3">
               {tags.map((tag, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
@@ -125,33 +127,35 @@ export default function Services() {
                 </Badge>
               ))}
             </div>
-          );
-        })()}
+          )
+        );
+      })()}
 
-        {/* Duration */}
-        {service.duration && (
-          <div className="flex items-center justify-center space-x-4 text-muted-foreground mb-2">
-            <div className="flex items-center">
-              <Timer className="h-4 w-4 mr-1" />
-              <span className="text-sm">{service.duration}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Price */}
-        <div className="text-3xl font-bold text-accent mb-2">
-          {service.price > 0 ? `${service.price} kr` : t.contactForPricing}
+      {/* Duration */}
+      {service.duration && (
+        <div className="flex items-center justify-center text-muted-foreground mb-2">
+          <Timer className="h-4 w-4 mr-1" />
+          <span className="text-sm">{service.duration}</span>
         </div>
-        <CardDescription className="text-base leading-relaxed">
-          {getLocalizedContent(service, 'description') as string}
-        </CardDescription>
-      </CardHeader>
+      )}
 
-      <CardContent className="pt-0">
-        <div className="space-y-4">
-          {(() => {
-            const features = getLocalizedContent(service, 'features') as string[];
-            return features && features.length > 0 && (
+      {/* Price */}
+      <div className="text-3xl font-bold text-accent mb-2">
+        {service.price > 0 ? `${service.price} kr` : t.contactForPricing}
+      </div>
+      <CardDescription className="text-base leading-relaxed">
+        {getLocalizedContent(service, "description") as string}
+      </CardDescription>
+    </CardHeader>
+
+    {/* Make content expand to fill, button stays bottom */}
+    <CardContent className="flex flex-col justify-between flex-grow pt-0">
+      <div className="space-y-4">
+        {(() => {
+          const features = getLocalizedContent(service, "features") as string[];
+          return (
+            features &&
+            features.length > 0 && (
               <div>
                 <h4 className="font-semibold mb-3 text-foreground">
                   {t.whatsIncluded}
@@ -168,24 +172,28 @@ export default function Services() {
                   ))}
                 </ul>
               </div>
-            );
-          })()}
+            )
+          );
+        })()}
+      </div>
 
-          <Button
-            onClick={() => (window.location.href = "/book")}
-            className={`w-full transition-all duration-300 ${
-              service.featured
-                ? "bg-accent hover:bg-accent/90 shadow-lg"
-                : "hover:bg-primary/90"
-            }`}
-            size="lg"
-          >
-            {t.bookThisService}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+      {/* Push button to bottom */}
+      <div className="mt-6">
+        <Button
+          onClick={() => (window.location.href = "/book")}
+          className={`w-full transition-all duration-300 ${
+            service.featured
+              ? "bg-accent hover:bg-accent/90 shadow-lg"
+              : "hover:bg-primary/90"
+          }`}
+          size="lg"
+        >
+          {t.bookThisService}
+        </Button>
+      </div>
+    </CardContent>
+  </Card>
+);
 
   const menServices = getServicesByCategory("men");
   const womenServices = getServicesByCategory("women");
