@@ -614,7 +614,7 @@ export default function BookAppointment() {
                         {barber.photo_path ? (
                           <img 
                             src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
-                            alt={barber.name}
+                            alt="Frisør Nærum logo - Professional barber services in Nærum"
                             className="h-16 w-16 rounded-full object-cover"
                           />
                         ) : (
@@ -842,7 +842,7 @@ export default function BookAppointment() {
                       return barber?.photo_path ? (
                         <img 
                           src={`${supabase.storage.from('barber-photos').getPublicUrl(barber.photo_path).data.publicUrl}`}
-                          alt={barber.name}
+                          alt="Frisør Nærum logo - Professional barber services in Nærum"
                           className="h-10 w-10 rounded-full object-cover"
                         />
                       ) : (
