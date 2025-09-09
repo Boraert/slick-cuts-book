@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Layout } from "./components/Layout";
+import GoogleReviewComponent from "./components/GoogleReviewComponent";
 import Home from "./pages/Home";
 import BookAppointment from "./pages/BookAppointment";
 import Services from "./pages/Services";
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/contact" element={<Layout><Contact /></Layout>} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/review" element={<GoogleReviewComponent />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
