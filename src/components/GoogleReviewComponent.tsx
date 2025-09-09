@@ -215,7 +215,7 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
     googleBtn: {
       background: 'linear-gradient(135deg, #4285f4 0%, #34a853 100%)',
       color: 'white',
-      padding: '16px 32px',
+      padding: '16px 24px',
       border: 'none',
       borderRadius: '8px',
       fontSize: '16px',
@@ -227,7 +227,9 @@ const GoogleReviewComponent: React.FC<GoogleReviewProps> = ({
       alignItems: 'center',
       gap: '12px',
       boxShadow: '0 4px 12px rgba(66, 133, 244, 0.3)',
-      minWidth: '220px',
+      minWidth: '200px',
+      width: '100%',
+      maxWidth: '280px',
       justifyContent: 'center',
     } as React.CSSProperties,
 
