@@ -204,7 +204,7 @@ export const translations: Record<Language, Translations> = {
     heroTitle: 'Welcome to Frisør Nærum',
     viewServices: 'View Services',
     heroTitleLine1: "Welcome to",
-    heroTitleLine2: "Elite Cuts Barbershop",
+    heroTitleLine2: "Frisør Nærum",
     heroSubtitle: "Experience the finest barber tradition with modern style in the heart of Nærum.",
     heroImageAlt: "Professional barbershop interior",
 
@@ -566,7 +566,7 @@ export const translations: Record<Language, Translations> = {
     heroSubtitle: 'اختبر أفضل تقاليد الحلاقة مع الأناقة الحديثة في قلب كوبنهاغن. قصات احترافية، خدمة خبيرة، حرفية خالدة.',
     viewServices: 'عرض الخدمات',
     heroTitleLine1: "مرحبًا بكم في",
-    heroTitleLine2: "حلاقة إيليت",
+    heroTitleLine2: "حلاقة Frisør Nærum",
   
     heroImageAlt: "داخل صالون حلاقة احترافي",
 
