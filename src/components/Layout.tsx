@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Facebook, Instagram, Phone } from "lucide-react";
 import { TikTok } from "@/components/ui/TikTok";
+import  Footer  from "./Footer";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -168,66 +169,7 @@ export function Layout({ children }: LayoutProps) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                
-             
-
-            <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/logo192.png" 
-                alt="Frisør Nærum Logo" 
-                className="h-10 w-auto" 
-              />
-              <span className="text-xl font-bold text-foreground">Frisør Nærum</span>
-            </Link>
-
-             </div>
-
-              <p className="text-muted-foreground">
-                {t.professionalBarbershopFooter}
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">{t.contactInfo}</h3>
-              <div className="space-y-2 text-muted-foreground">
-                <p>{t.address}</p>
-                <p>{t.copenhagen}, {t.denmark}</p>
-                <p>{t.phone}</p>
-                <p>{t.email}</p>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">{t.hours}</h3>
-              <div className="space-y-2 text-muted-foreground">
-                
-
-                <div className="flex justify-between">
-                  <span>{t.mondayFriday}</span>
-                  <span>09:00 - 18:00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t.saturday || "Saturday"}</span>
-                  <span>09:00 - 16:00</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t.sunday || "Sunday"}</span>
-                  <span className="text-muted-foreground">{t.closed || "Closed"}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground">
-            <p>&copy; 2025 Frisør Nærum. {t.allRightsReserved}</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

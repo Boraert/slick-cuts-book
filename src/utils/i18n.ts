@@ -8,12 +8,17 @@ export interface Translations {
   bookAppointment: string;
   contact: string;
   adminLogin: string;
+  about: string;
+  aboutUs: string,
+  quickLinks: string,
 
   // Common
   bookNow: string;
   bookYourAppointment: string;
   readyForYourNextCut: string;
   experienceEliteCuts: string;
+  heroImageAlt: string
+  brandName: string
 
   // Hero section
   heroTitle: string;
@@ -21,7 +26,7 @@ export interface Translations {
   viewServices: string;
   heroTitleLine1:string;
   heroTitleLine2:string;
-
+  youCanBook:string
 
   // Services
   ourServices: string;
@@ -184,6 +189,9 @@ export const translations: Record<Language, Translations> = {
     bookAppointment: 'Book Appointment',
     contact: 'Contact',
     adminLogin: 'Admin Login',
+    
+    aboutUs: "About Us",
+    quickLinks: "Quick Links",
 
     // Common
     bookNow: 'Book Now',
@@ -191,6 +199,7 @@ export const translations: Record<Language, Translations> = {
     readyForYourNextCut: 'Ready for Your Next Cut?',
     experienceEliteCuts: 'Book your appointment today and experience the Frisør Nærum difference',
 
+    brandName: "Frisør Nærum",
     // Hero section
     heroTitle: 'Welcome to Frisør Nærum',
     viewServices: 'View Services',
@@ -361,6 +370,10 @@ export const translations: Record<Language, Translations> = {
     bookAppointment: 'Book Tid',
     contact: 'Kontakt',
     adminLogin: 'Admin Login',
+    
+    aboutUs: "Om os",
+    quickLinks: "Hurtige links",
+    
 
 
     // Common
@@ -368,6 +381,7 @@ export const translations: Record<Language, Translations> = {
     bookYourAppointment: 'Book Din Tid',
     readyForYourNextCut: 'Klar til Dit Næste Klip?',
     experienceEliteCuts: 'Book din tid i dag og oplev Frisør Nærum forskellen',
+     brandName: "Frisør Nærum",
    
     // Hero section
     heroTitle: 'Velkommen til Frisør Nærum.',
@@ -538,6 +552,8 @@ export const translations: Record<Language, Translations> = {
     bookAppointment: 'حجز موعد',
     contact: 'اتصل بنا',
     adminLogin: 'دخول المشرف',
+    aboutUs: "من نحن",
+    quickLinks: "روابط سريعة",
 
     // Common
     bookNow: 'احجز الآن',
