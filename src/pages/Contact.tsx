@@ -96,10 +96,19 @@ export default function Contact() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <CardDescription className="text-base">
-                      Mon-Fri: 9:00 AM - 7:00 PM<br />
-                      Sat: 9:00 AM - 6:00 PM<br />
-                      Sun: 9:00 AM - 6:00 PM
+                    <CardDescription className="text-base space-y-1">
+                      <div className="flex justify-between">
+                        <span>{t.mondayFriday}</span>
+                        <span>09:00 - 18:00</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t.saturday || "Saturday"}</span>
+                        <span>09:00 - 16:00</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t.sunday || "Sunday"}</span>
+                        <span className="text-muted-foreground">{t.closed || "Closed"}</span>
+                      </div>
                     </CardDescription>
                   </CardContent>
                 </Card>
