@@ -7,6 +7,8 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Facebook, Instagram, Phone } from "lucide-react";
 import { TikTok } from "@/components/ui/TikTok";
 import  Footer  from "./Footer";
+import { Outlet } from "react-router-dom";
+
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -167,7 +169,12 @@ export function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <main>{children}</main>
+      
+
+        <main>
+          <Outlet />  {/* 👈 this renders the active page */}
+        </main>
+
 
       {/* Footer */}
       <Footer />

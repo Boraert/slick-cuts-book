@@ -25,15 +25,21 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Layout><Home /></Layout>} />
-            <Route path="/book" element={<Layout><BookAppointment /></Layout>} />
-            <Route path="/services" element={<Layout><Services /></Layout>} />
-            <Route path="/contact" element={<Layout><Contact /></Layout>} />
+            {/* ✅ Layout wrapper */}
+            <Route element={<Layout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/book" element={<BookAppointment />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
+            </Route>
+
+            {/* Routes without Layout */}
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/review" element={<GoogleReviewComponent />} />
-            <Route path="/about" element={<About />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
