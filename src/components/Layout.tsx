@@ -40,7 +40,7 @@ export function Layout({ children }: LayoutProps) {
                 rel="noopener noreferrer"
                 className="hover:underline hover:text-primary-glow transition-colors"
               >
-                NÆRUM HOVEDGADE 52, 2850 NÆRUM
+                NÆRUM HOVEDGADE 52
               </a>
             </div>
 
