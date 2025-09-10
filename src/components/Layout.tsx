@@ -35,7 +35,7 @@ export function Layout({ children }: LayoutProps) {
               <a href="tel:+4528446749" className="hover:text-primary-glow transition-colors">
                 <Phone className="h-4 w-4" />
               </a>
-              <span>28 44 67 49</span>
+              
             </div>
             
             <a
@@ -47,7 +47,7 @@ export function Layout({ children }: LayoutProps) {
               NÆRUM HOVEDGADE 52, 2850 NÆRUM
             </a>
 
-            
+
           </div>
           <div className="flex items-center gap-3">
             <a
