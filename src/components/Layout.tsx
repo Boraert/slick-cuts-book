@@ -22,7 +22,7 @@ export function Layout({ children }: LayoutProps) {
     { name: t.services, href: "/services" },
     { name: t.bookAppointment, href: "/book" },
     { name: t.contact, href: "/contact" },
-    { name: t.contact, href: "/about" },
+    { name: t.aboutUs, href: "/about" },
   ];
 
   return (
