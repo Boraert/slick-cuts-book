@@ -5,7 +5,7 @@ import { Scissors, Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Facebook, Instagram, Phone } from "lucide-react";
-import { FaTiktok } from "react-icons/fa";
+import { TikTok } from "@/components/ui/TikTok";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -54,7 +54,7 @@ export function Layout({ children }: LayoutProps) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaTiktok className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+              <TikTok className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
             </a>
           </div>
         </div>
