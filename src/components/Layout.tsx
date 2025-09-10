@@ -31,12 +31,9 @@ export function Layout({ children }: LayoutProps) {
         <div className="container mx-auto flex justify-between items-center text-sm">
           <div className="flex items-center gap-2">
 
-             <div className="flex items-center gap-2">
-              <a href="tel:+4528446749" className="hover:text-primary-glow transition-colors">
+          <a href="tel:+4528446749" className="hover:text-primary-glow transition-colors">
                 <Phone className="h-4 w-4" />
               </a>
-              
-            </div>
             
             <a
               href="https://maps.app.goo.gl/dnxDTh4eBf29qTXx8"
