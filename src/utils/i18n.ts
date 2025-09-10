@@ -19,6 +19,9 @@ export interface Translations {
   heroTitle: string;
   heroSubtitle: string;
   viewServices: string;
+  heroTitleLine1:string;
+  heroTitleLine2:string;
+
 
   // Services
   ourServices: string;
@@ -190,8 +193,11 @@ export const translations: Record<Language, Translations> = {
 
     // Hero section
     heroTitle: 'Welcome to Frisør Nærum',
-    heroSubtitle: 'Experience the finest barbershop tradition with modern style in the heart of Nærum  Professional cuts, expert service, timeless craftsmanship.',
     viewServices: 'View Services',
+    heroTitleLine1: "Welcome to",
+    heroTitleLine2: "Elite Cuts Barbershop",
+    heroSubtitle: "Experience the finest barber tradition with modern style in the heart of Nærum.",
+    heroImageAlt: "Professional barbershop interior",
 
     // Services
     ourServices: 'Our Services',
@@ -356,16 +362,21 @@ export const translations: Record<Language, Translations> = {
     contact: 'Kontakt',
     adminLogin: 'Admin Login',
 
+
     // Common
     bookNow: 'Book Nu',
     bookYourAppointment: 'Book Din Tid',
     readyForYourNextCut: 'Klar til Dit Næste Klip?',
     experienceEliteCuts: 'Book din tid i dag og oplev Frisør Nærum forskellen',
-
+   
     // Hero section
     heroTitle: 'Velkommen til Frisør Nærum.',
     heroSubtitle: 'Oplev den fineste barbertradition med moderne stil i hjertet af Nærum. Professionelle klipninger, ekspertservice, tidløs håndværk.',
     viewServices: 'Se Tjenester',
+    heroTitleLine1: "Velkommen til",
+    heroTitleLine2: "Frisør Nærum",
+    heroImageAlt: "Professionelt frisørmiljø",
+
 
     // Services
     ourServices: 'Vores Tjenester',
@@ -538,6 +549,10 @@ export const translations: Record<Language, Translations> = {
     heroTitle: 'مرحباً بكم في Frisør Nærum ',
     heroSubtitle: 'اختبر أفضل تقاليد الحلاقة مع الأناقة الحديثة في قلب كوبنهاغن. قصات احترافية، خدمة خبيرة، حرفية خالدة.',
     viewServices: 'عرض الخدمات',
+    heroTitleLine1: "مرحبًا بكم في",
+    heroTitleLine2: "حلاقة إيليت",
+  
+    heroImageAlt: "داخل صالون حلاقة احترافي",
 
     // Services
     ourServices: 'خدماتنا',

@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Scissors, Clock, Users, Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 import Services from "./Services";
+import heroBarbershop from "@/assets/hero-barbershop.jpg"; // make sure this path is correct
 
 export default function Home() {
   const { t } = useLanguage();
   
- 
   const features = [
     {
       icon: Clock,
@@ -30,31 +31,44 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary to-accent py-20 lg:py-52">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl lg:text-6xl font-bold text-primary-foreground mb-6">
-            {t.heroTitle}
-          </h1>
-          <p className="text-xl lg:text-2xl text-primary-foreground/90 mb-8 max-w-3xl mx-auto">
-            {t.heroSubtitle}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/book">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
+      <section id="hjem" className="relative min-h-screen flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={heroBarbershop}
+            alt="Professional barbershop interior"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/50 opacity-80"></div>
+        </div>
+
+  {/* Content */}
+  <div className="relative z-10 container mx-auto px-4 py-20">
+    <div className="max-w-3xl">
+      <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+        {t.heroTitleLine1}<br />
+        <span className="text-accent">{t.heroTitleLine2}</span>
+      </h1>
+      <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+        {t.heroSubtitle}
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Link to="/book">
+                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 {t.bookAppointment}
               </Button>
             </Link>
-            <Link to="/services">
+             <Link to="/services">
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 {t.viewServices}
               </Button>
             </Link>
-          </div>
-        </div>
+      </div>
+    </div>
+  </div>
+
+        
       </section>
-
-      
-
 
       {/* Services Section */}
       <Services />
