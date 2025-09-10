@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Scissors, Menu, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { Facebook, Instagram, Phone } from "lucide-react";
+import { FaTiktok } from "react-icons/fa";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,6 +25,42 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+
+       {/* Top bar with contact info and social media */}
+      <div className="bg-primary text-primary-foreground py-2 px-4">
+        <div className="container mx-auto flex justify-between items-center text-sm">
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4" />
+            <span>NÆRUM HOVEDGADE 52, 2850 NÆRUM</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://www.facebook.com/profile.php?id=61579828196545&mibextid=wwXIfr&rdid=QGr4vSV24B482Qiz&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1GzCTzu2cX%2F%3Fmibextid%3DwwXIfr#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Facebook className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+            </a>
+            <a
+              href="https://www.instagram.com/barber.shop122/?igsh=MW5hNWg1c2cwejFiZA%3D%3D&utm_source=qr#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Instagram className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+            </a>
+
+            <a
+              href="https://www.tiktok.com/@barber.shop123"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaTiktok className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+
       {/* Navigation */}
       <nav className="bg-card border-b border-border sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
