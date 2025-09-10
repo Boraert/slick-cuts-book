@@ -30,8 +30,24 @@ export function Layout({ children }: LayoutProps) {
       <div className="bg-primary text-primary-foreground py-2 px-4">
         <div className="container mx-auto flex justify-between items-center text-sm">
           <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4" />
-            <span>NÆRUM HOVEDGADE 52, 2850 NÆRUM</span>
+
+             <div className="flex items-center gap-2">
+              <a href="tel:+4528446749" className="hover:text-primary-glow transition-colors">
+                <Phone className="h-4 w-4" />
+              </a>
+              <span>28 44 67 49</span>
+            </div>
+            
+            <a
+              href="https://maps.app.goo.gl/dnxDTh4eBf29qTXx8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline hover:text-primary-glow transition-colors"
+            >
+              NÆRUM HOVEDGADE 52, 2850 NÆRUM
+            </a>
+
+            
           </div>
           <div className="flex items-center gap-3">
             <a
