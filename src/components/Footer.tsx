@@ -95,17 +95,30 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4">{t.contactInfo || "Kontakt Info"}</h4>
             <div className="space-y-3 text-primary-foreground/80 text-sm">
-              {/* Address */}
-              <div className="flex items-center gap-3">
-                <MapPin className="h-4 w-4 text-accent" />
-                <span>{t.address || "Nærum Hovedgade 52, 2850 Nærum"}</span>
-              </div>
+             {/* Address */}
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-4 w-4 text-accent" />
+                  <a
+                    href="https://maps.app.goo.gl/dnxDTh4eBf29qTXx8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline hover:text-primary-glow transition-colors"
+                  >
+                    {t.address || "Nærum Hovedgade 52, 2850 Nærum"}
+                  </a>
+                </div>
 
-              {/* Phone */}
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-accent" />
-                <span>{t.phone || "+45 45 12 34 56"}</span>
-              </div>
+                {/* Phone */}
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-accent" />
+                  <a
+                    href="tel:+4528446749"
+                    className="hover:underline hover:text-primary-glow transition-colors"
+                  >
+                    {t.phone || "+45 28 44 67 49"}
+                  </a>
+                </div>
+
 
               {/* Opening Hours */}
               <div className="flex items-center gap-3">
