@@ -111,11 +111,7 @@ export function Layout({ children }: LayoutProps) {
             {/* Language Switcher and Admin Login */}
             <div className="hidden md:flex items-center space-x-4">
               <LanguageSwitcher />
-              <Link to="/admin">
-                <Button variant="outline" size="sm">
-                  {t.adminLogin}
-                </Button>
-              </Link>
+              
             </div>
 
             {/* Mobile menu button */}
@@ -155,13 +151,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="px-3 py-2">
                   <LanguageSwitcher />
                 </div>
-                <Link
-                  to="/admin"
-                  className="block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {t.adminLogin}
-                </Link>
+                
               </div>
             </div>
           )}
