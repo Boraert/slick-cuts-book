@@ -1,22 +1,16 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scissors, Menu, X } from "lucide-react";
+import { Menu, X, Facebook, Instagram, Phone } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { Facebook, Instagram, Phone } from "lucide-react";
 import { TikTok } from "@/components/ui/TikTok";
-import  Footer  from "./Footer";
-import { Outlet } from "react-router-dom";
+import Footer from "./Footer";
 
-
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
+export function Layout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
   const navigation = [
@@ -29,53 +23,36 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Top Bar */}
+      <div className="bg-primary text-primary-foreground py-2">
+        <div className="w-full flex justify-between items-center text-sm px-2 md:px-4">
+          <div className="flex items-center gap-2">
+            <a href="tel:+4528446749" className="hover:text-primary-glow transition-colors">
+              <Phone className="h-4 w-4" />
+            </a>
+            <a
+              href="https://maps.app.goo.gl/dnxDTh4eBf29qTXx8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline hover:text-primary-glow transition-colors"
+            >
+              NÆRUM HOVEDGADE 52
+            </a>
+          </div>
 
-       {/* Top bar with contact info and social media */}
-        <div className="bg-primary text-primary-foreground py-2">
-          <div className="w-full flex justify-between items-center text-sm px-2 md:px-4">
-            {/* Contact Info */}
-            <div className="flex items-center gap-2">
-              <a href="tel:+4528446749" className="hover:text-primary-glow transition-colors">
-                <Phone className="h-4 w-4" />
-              </a>
-              <a
-                href="https://maps.app.goo.gl/dnxDTh4eBf29qTXx8"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline hover:text-primary-glow transition-colors"
-              >
-                NÆRUM HOVEDGADE 52
-              </a>
-            </div>
-
-            {/* Social Icons */}
-            <div className="flex items-center gap-3">
-              <a
-                href="https://www.facebook.com/profile.php?id=61579828196545&mibextid=wwXIfr&rdid=QGr4vSV24B482Qiz&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1GzCTzu2cX%2F%3Fmibextid%3DwwXIfr#"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Facebook className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
-              </a>
-              <a
-                href="https://www.instagram.com/barber.shop122/?igsh=MW5hNWg1c2cwejFiZA%3D%3D&utm_source=qr#"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
-              </a>
-              <a
-                href="https://www.tiktok.com/@barber.shop123"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <TikTok className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
-              </a>
-            </div>
+          <div className="flex items-center gap-3">
+            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+              <Facebook className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+              <Instagram className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+            </a>
+            <a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">
+              <TikTok className="h-5 w-5 hover:text-primary-glow transition-colors cursor-pointer" />
+            </a>
           </div>
         </div>
-
-
+      </div>
 
       {/* Navigation */}
       <nav className="bg-card border-b border-border sticky top-0 z-50">
@@ -83,12 +60,14 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/logo192.png" 
-                alt="Frisør Nærum Logo" 
-                className="h-10 w-auto" 
+              <img
+                src="/logo192.png"
+                alt="Frisør Nærum Logo"
+                className="h-10 w-auto"
               />
-              <span className="text-xl font-bold text-foreground">Frisør Nærum</span>
+              <span className="text-xl font-bold text-foreground">
+                Frisør Nærum
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -108,13 +87,16 @@ export function Layout({ children }: LayoutProps) {
               ))}
             </div>
 
-            {/* Language Switcher and Admin Login */}
+            {/* Desktop Right Side */}
             <div className="hidden md:flex items-center space-x-4">
               <LanguageSwitcher />
-              
+
+              <Button onClick={() => navigate("/min-konto")}>
+                Login
+              </Button>
             </div>
 
-            {/* Mobile menu button */}
+            {/* Mobile Menu Button */}
             <div className="md:hidden">
               <Button
                 variant="ghost"
@@ -132,13 +114,13 @@ export function Layout({ children }: LayoutProps) {
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden">
-              <div className="px-2 pt-2 pb-3 space-y-1 border-t border-border">
+            <div className="md:hidden border-t border-border">
+              <div className="px-2 pt-2 pb-3 space-y-1">
                 {navigation.map((item) => (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`block px-3 py-2 text-base font-medium transition-colors ${
+                    className={`block px-3 py-2 text-base font-medium ${
                       location.pathname === item.href
                         ? "text-accent"
                         : "text-muted-foreground hover:text-foreground"
@@ -148,10 +130,22 @@ export function Layout({ children }: LayoutProps) {
                     {item.name}
                   </Link>
                 ))}
+
                 <div className="px-3 py-2">
                   <LanguageSwitcher />
                 </div>
-                
+
+                <div className="px-3 py-2">
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      navigate("/min-konto");
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Login
+                  </Button>
+                </div>
               </div>
             </div>
           )}
@@ -159,12 +153,9 @@ export function Layout({ children }: LayoutProps) {
       </nav>
 
       {/* Main Content */}
-      
-
-        <main>
-          <Outlet />  {/* 👈 this renders the active page */}
-        </main>
-
+      <main>
+        <Outlet />
+      </main>
 
       {/* Footer */}
       <Footer />

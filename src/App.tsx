@@ -14,6 +14,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import About from "./components/About";
+import CustomerPortalLogin     from '@/pages/customer-login/CustomerPortalLogin';
+import CustomerPortalDashboard from '@/pages/customer-login/CustomerPortalDashboard';
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/review" element={<GoogleReviewComponent />} />
+            <Route path="/min-konto"           element={<CustomerPortalLogin />} />
+            <Route path="/min-konto/bookinger" element={<CustomerPortalDashboard />} />
 
             {/* Catch-all */}
             <Route path="*" element={<NotFound />} />
