@@ -473,7 +473,7 @@ export default function AdminDashboard() {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState<"date" | "time" | "customer" | "barber" | "status">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");  // was "desc"
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"today" | "upcoming" | "all">("today");
   const [activeMainTab, setActiveMainTab] = useState<"appointments" | "barbers" | "services">("appointments");
@@ -605,17 +605,23 @@ export default function AdminDashboard() {
   };
 
   const sortAppointments = (list: Appointment[]) =>
-    [...list].sort((a, b) => {
-      let cmp = 0;
-      switch (sortBy) {
-        case "date": cmp = new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime(); break;
-        case "time": cmp = a.appointment_time.localeCompare(b.appointment_time); break;
-        case "customer": cmp = a.customer_name.localeCompare(b.customer_name); break;
-        case "barber": cmp = getBarberName(a.barber_id).localeCompare(getBarberName(b.barber_id)); break;
-        case "status": cmp = a.status.localeCompare(b.status); break;
-      }
-      return sortOrder === "asc" ? cmp : -cmp;
-    });
+  [...list].sort((a, b) => {
+    // Always sort by date+time ascending as tiebreaker
+    const dateTimeA = `${a.appointment_date} ${a.appointment_time}`;
+    const dateTimeB = `${b.appointment_date} ${b.appointment_time}`;
+
+    let cmp = 0;
+    switch (sortBy) {
+      case "date": cmp = dateTimeA.localeCompare(dateTimeB); break;
+      case "time": cmp = a.appointment_time.localeCompare(b.appointment_time); break;
+      case "customer": cmp = a.customer_name.localeCompare(b.customer_name); break;
+      case "barber": cmp = getBarberName(a.barber_id).localeCompare(getBarberName(b.barber_id)); break;
+      case "status": cmp = a.status.localeCompare(b.status); break;
+    }
+
+    // If other columns are equal, fall back to date+time ascending
+    return cmp !== 0 ? (sortOrder === "asc" ? cmp : -cmp) : dateTimeA.localeCompare(dateTimeB);
+  });
 
   const filterAppointments = (list: Appointment[]) => {
     let filtered = statusFilter !== "all" ? list.filter((a) => a.status === statusFilter) : list;
@@ -798,6 +804,13 @@ export default function AdminDashboard() {
     setServices((prev) => prev.filter((s) => s.id !== svcId));
     toast({ title: "Deleted", description: `${svc.name} has been removed.` });
   };
+
+ const getServicePrice = (serviceType: string) => {
+  const match = services.find(
+    (s) => s.id === serviceType
+  );
+  return match?.price != null ? `DKK ${Number(match.price).toFixed(0)}` : "—";
+};
 
   /* =========================
      Misc
@@ -1026,6 +1039,7 @@ export default function AdminDashboard() {
                         <TableHead>{renderSortButton("customer", "Customer")}</TableHead>
                         <TableHead>{renderSortButton("date", "Date & Time")}</TableHead>
                         <TableHead>Service</TableHead>
+                        <TableHead>Price</TableHead>
                         <TableHead>{renderSortButton("barber", "Barber")}</TableHead>
                         <TableHead>{renderSortButton("status", "Status")}</TableHead>
                         <TableHead>Booked On</TableHead>
@@ -1046,7 +1060,10 @@ export default function AdminDashboard() {
                             <div className="font-medium">{format(parseISO(appointment.appointment_date), "MMM d, yyyy")}</div>
                             <div className="text-sm text-muted-foreground">{appointment.appointment_time}</div>
                           </TableCell>
+                          
                           <TableCell>{getServiceLabel(appointment.service_type)}</TableCell>
+                          <TableCell className="font-medium text-emerald-700">
+                          {getServicePrice(appointment.service_type)}</TableCell>
                           <TableCell className="font-medium">{getBarberName(appointment.barber_id)}</TableCell>
                           <TableCell>
                             <Badge className={getStatusColor(appointment.status)}>{appointment.status}</Badge>
