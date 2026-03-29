@@ -805,12 +805,17 @@ export default function AdminDashboard() {
     toast({ title: "Deleted", description: `${svc.name} has been removed.` });
   };
 
- const getServicePrice = (serviceType: string) => {
+const getServicePrice = (serviceType: string) => {
   const match = services.find(
-    (s) => s.id === serviceType
+    (s) =>
+      s.id === serviceType ||
+      s.name === serviceType ||
+      s.id.toLowerCase().startsWith(serviceType.toLowerCase()) ||
+      serviceType.toLowerCase().startsWith(s.id.toLowerCase())
   );
   return match?.price != null ? `DKK ${Number(match.price).toFixed(0)}` : "—";
 };
+
 
   /* =========================
      Misc
@@ -821,8 +826,16 @@ export default function AdminDashboard() {
   const getBarberName = (barberId: string) =>
     barbers.find((b) => b.id === barberId)?.name ?? "Unknown";
 
-  const getServiceLabel = (serviceType: string) =>
-    serviceType ? serviceType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()) : "General Cut";
+  const getServiceLabel = (serviceType: string) => {
+  const match = services.find(
+    (s) =>
+      s.id === serviceType ||
+      s.name === serviceType ||
+      s.id.toLowerCase().startsWith(serviceType.toLowerCase()) ||
+      serviceType.toLowerCase().startsWith(s.id.toLowerCase())
+  );
+  return match?.name ?? serviceType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+};
 
   const getStatusColor = (status: string) => {
     switch (status) {
