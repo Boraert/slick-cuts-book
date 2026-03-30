@@ -18,10 +18,11 @@ interface Appointment {
   customer_name: string;
   customer_email: string;
   customer_phone: string;
-  barber_id: string;
+  barber_id: string | null;
+  barbers?: { name: string } | null;
   service_type: string;
-  appointment_date: string;   // 'YYYY-MM-DD'
-  appointment_time: string;   // 'HH:MM' or 'HH:MM:SS'
+  appointment_date: string;
+  appointment_time: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   duration?: number;
   price?: number;
@@ -48,12 +49,8 @@ const aptDateTime = (apt: Appointment): Date => {
 const getServiceName = (serviceId: string) => {
   const service = services.find(s => s.id === serviceId);
   if (!service) return serviceId;
-
-  return "da" === "da"
-    ? service.name_da || service.name
-    : service.name;
+  return service.name_da || service.name;
 };
-
 
 const STATUS_MAP = {
   confirmed: { label: 'Bekræftet', color: '#166534', bg: '#f0fdf4', border: '#86efac' },
@@ -62,209 +59,16 @@ const STATUS_MAP = {
   completed: { label: 'Gennemført',color: '#374151', bg: '#f3f4f6', border: '#d1d5db' },
 } as const;
 
-/* ─── STYLES ─────────────────────────────────────────────────────────── */
-const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700&family=DM+Sans:wght@300;400;500;600&display=swap');
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  button:focus { outline: none; }
-
-  .cd-root { min-height: 100vh; background: #faf8f4; font-family: 'DM Sans', sans-serif; }
-
-  /* header */
-  .cd-header {
-    background: #0a2540; border-bottom: 3px solid #c8a96e;
-    position: sticky; top: 0; z-index: 100;
-  }
-  .cd-header-inner {
-    max-width: 800px; margin: 0 auto; padding: 0 24px;
-    display: flex; align-items: center; justify-content: space-between; height: 64px;
-  }
-  .cd-logo-wrap { display: flex; align-items: center; gap: 12px; }
-  .cd-logo-ring {
-    width: 38px; height: 38px; border-radius: 10px;
-    border: 1.5px solid #c8a96e;
-    display: flex; align-items: center; justify-content: center; font-size: 18px;
-  }
-  .cd-logo-name   { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: #fff; line-height: 1; }
-  .cd-logo-sub    { font-size: 10px; color: #c8a96e; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
-  .cd-header-right { display: flex; align-items: center; gap: 14px; }
-  .cd-welcome { font-size: 13px; color: rgba(255,255,255,.55); }
-  .cd-welcome strong { color: #c8a96e; }
-  .cd-logout {
-    padding: 7px 16px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
-    background: transparent; color: rgba(255,255,255,.65); font-size: 12px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s;
-  }
-  .cd-logout:hover { border-color: #c8a96e; color: #c8a96e; }
-
-  /* toast */
-  .cd-toast {
-    position: fixed; top: 20px; right: 20px; z-index: 9999;
-    background: #0a2540; color: #fff; padding: 13px 20px; border-radius: 12px;
-    font-size: 14px; font-weight: 600; box-shadow: 0 8px 28px rgba(10,37,64,.35);
-    border-left: 4px solid #c8a96e; animation: cdSlide .3s ease;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  /* main */
-  .cd-main { max-width: 800px; margin: 0 auto; padding: 36px 24px 60px; }
-
-  /* stats */
-  .cd-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 32px; }
-  .cd-stat {
-    background: #fff; border-radius: 16px; padding: 18px 20px;
-    box-shadow: 0 2px 10px rgba(10,37,64,.06);
-    display: flex; align-items: center; gap: 14px;
-  }
-  .cd-stat-icon { font-size: 26px; flex-shrink: 0; }
-  .cd-stat-val  { font-size: 26px; font-weight: 800; line-height: 1; }
-  .cd-stat-lbl  { font-size: 11px; color: #6b7280; font-weight: 500; margin-top: 3px; }
-
-  /* tabs */
-  .cd-tabs {
-    display: flex; gap: 0; margin-bottom: 24px;
-    background: #fff; border-radius: 12px; padding: 4px;
-    border: 1px solid #e8e0d5;
-  }
-  .cd-tab {
-    flex: 1; padding: 10px 0; border: none; border-radius: 9px;
-    font-size: 13px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-    cursor: pointer; transition: all .2s;
-  }
-  .cd-tab.active   { background: #0a2540; color: #fff; }
-  .cd-tab.inactive { background: transparent; color: #6b7280; }
-  .cd-tab.inactive:hover { color: #0a2540; }
-
-  /* card */
-  .cd-card {
-    background: #fff; border-radius: 18px; overflow: hidden;
-    box-shadow: 0 4px 16px rgba(10,37,64,.07); border: 1px solid #e8e0d5;
-    margin-bottom: 14px; transition: all .2s;
-    animation: cdFadeUp .4s ease both;
-  }
-  .cd-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(10,37,64,.12); }
-  .cd-card:nth-child(1) { animation-delay: .04s }
-  .cd-card:nth-child(2) { animation-delay: .08s }
-  .cd-card:nth-child(3) { animation-delay: .12s }
-  .cd-card:nth-child(4) { animation-delay: .16s }
-
-  .cd-stripe { height: 3px; }
-  .cd-card-body { padding: 20px 22px; }
-  .cd-card-top  { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
-  .cd-card-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: #0a2540; }
-  .cd-card-barber { font-size: 12px; color: #6b7280; margin-top: 3px; }
-  .cd-badge {
-    padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
-    white-space: nowrap; border-width: 1px; border-style: solid;
-  }
-  .cd-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
-  .cd-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #6b7280; }
-  .cd-actions { display: flex; gap: 10px; }
-  .cd-btn-primary {
-    flex: 1; padding: 10px 0; border: 1.5px solid #0a2540; border-radius: 9px;
-    background: #0a2540; color: #fff; font-size: 12px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s;
-  }
-  .cd-btn-primary:hover { background: #1a3a5c; }
-  .cd-btn-outline {
-    flex: 1; padding: 10px 0; border: 1.5px solid #fca5a5; border-radius: 9px;
-    background: #fff; color: #991b1b; font-size: 12px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s;
-  }
-  .cd-btn-outline:hover { background: #fef2f2; }
-
-  /* empty */
-  .cd-empty {
-    background: #fff; border-radius: 20px; padding: 52px 24px; text-align: center;
-    box-shadow: 0 2px 10px rgba(10,37,64,.06); border: 1px solid #e8e0d5;
-  }
-  .cd-empty-icon  { font-size: 52px; margin-bottom: 16px; }
-  .cd-empty-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: #0a2540; margin-bottom: 8px; }
-  .cd-empty-sub   { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
-  .cd-book-btn {
-    padding: 12px 28px; border: none; border-radius: 10px;
-    background: linear-gradient(135deg, #0a2540, #1a3a5c);
-    color: #fff; font-size: 14px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(10,37,64,.25);
-  }
-
-  /* CTA banner */
-  .cd-cta {
-    margin-top: 40px; padding: 30px; background: #0a2540; border-radius: 20px;
-    text-align: center; position: relative; overflow: hidden;
-  }
-  .cd-cta::before {
-    content: ''; position: absolute; top: -30px; right: -30px;
-    width: 120px; height: 120px; border-radius: 50%;
-    background: rgba(200,169,110,.12); pointer-events: none;
-  }
-  .cd-cta-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 6px; position: relative; }
-  .cd-cta-sub   { font-size: 13px; color: rgba(255,255,255,.55); margin-bottom: 18px; position: relative; }
-  .cd-cta-btn {
-    padding: 12px 28px; border: 1.5px solid #c8a96e; border-radius: 10px;
-    background: transparent; color: #c8a96e; font-size: 14px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s; position: relative;
-  }
-  .cd-cta-btn:hover { background: #c8a96e; color: #0a2540; }
-
-  /* loading */
-  .cd-loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #faf8f4; }
-  .cd-spinner {
-    width: 44px; height: 44px; border: 3px solid #e8e0d5; border-top-color: #0a2540;
-    border-radius: 50%; animation: spin .7s linear infinite;
-  }
-
-  /* confirm dialog overlay */
-  .cd-overlay {
-    position: fixed; inset: 0; background: rgba(10,37,64,.65); backdrop-filter: blur(4px);
-    display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
-    animation: cdFadeIn .2s ease;
-  }
-  .cd-dialog {
-    background: #fff; border-radius: 22px; padding: 32px; max-width: 380px; width: 100%;
-    box-shadow: 0 32px 80px rgba(10,37,64,.3);
-    animation: cdSlide .25s ease;
-  }
-  .cd-dialog::before {
-    content: ''; display: block; height: 3px; margin: -32px -32px 28px;
-    background: linear-gradient(90deg, #c8a96e, #e8d5a3, #c8a96e);
-    border-radius: 22px 22px 0 0;
-  }
-  .cd-dialog-icon  { font-size: 44px; text-align: center; margin-bottom: 16px; }
-  .cd-dialog-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: #0a2540; margin-bottom: 8px; text-align: center; }
-  .cd-dialog-sub   { font-size: 13px; color: #6b7280; text-align: center; margin-bottom: 20px; }
-  .cd-dialog-info  {
-    background: #faf8f4; border: 1px solid #e8e0d5; border-radius: 12px;
-    padding: 14px 16px; margin-bottom: 22px;
-  }
-  .cd-dialog-info-title { font-size: 14px; font-weight: 700; color: #0a2540; margin-bottom: 4px; }
-  .cd-dialog-info-sub   { font-size: 12px; color: #6b7280; }
-  .cd-dialog-actions    { display: flex; gap: 10px; }
-  .cd-dialog-keep {
-    flex: 1; padding: 13px; border: 1.5px solid #e8e0d5; border-radius: 10px;
-    background: #fff; color: #0a2540; font-size: 14px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer;
-  }
-  .cd-dialog-cancel {
-    flex: 1; padding: 13px; border: none; border-radius: 10px;
-    background: #dc2626; color: #fff; font-size: 14px; font-weight: 600;
-    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all .2s;
-  }
-  .cd-dialog-cancel:hover   { background: #b91c1c; }
-  .cd-dialog-cancel:disabled{ opacity: .7; cursor: not-allowed; }
-
-  @keyframes spin     { to { transform: rotate(360deg); } }
-  @keyframes cdFadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes cdSlide  { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes cdFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-  @media (max-width: 600px) {
-    .cd-stats { grid-template-columns: 1fr 1fr; }
-    .cd-stats .cd-stat:last-child { grid-column: 1/-1; }
-    .cd-meta  { gap: 10px; }
-    .cd-header-inner { padding: 0 16px; }
-  }
+/* ─── GLOBAL ANIMATIONS ──────────────────────────────────────────────── */
+const KEYFRAMES = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+  @keyframes fadeUp   { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideDown{ from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes spin     { to   { transform:rotate(360deg); } }
+  @keyframes shimmer  { 0%,100%{opacity:.6} 50%{opacity:1} }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Outfit', sans-serif; }
 `;
 
 /* ─── COMPONENT ──────────────────────────────────────────────────────── */
@@ -272,10 +76,11 @@ export default function CustomerPortalDashboard() {
   const [appointments, setAppointments]         = useState<Appointment[]>([]);
   const [isLoading, setIsLoading]               = useState(true);
   const [tab, setTab]                           = useState<'upcoming' | 'past'>('upcoming');
-  const [toast, setToast]                       = useState('');
+  const [toastMsg, setToastMsg]                 = useState('');
   const [cancelTarget, setCancelTarget]         = useState<Appointment | null>(null);
   const [cancelLoading, setCancelLoading]       = useState(false);
   const [rescheduleTarget, setRescheduleTarget] = useState<Appointment | null>(null);
+  const [hoveredCard, setHoveredCard]           = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { toast: shadToast } = useToast();
@@ -283,28 +88,19 @@ export default function CustomerPortalDashboard() {
   const customerEmail = sessionStorage.getItem('cp_email') || '';
   const customerPhone = sessionStorage.getItem('cp_phone') || '';
 
-  // Auth guard
   useEffect(() => {
-    if (!customerEmail || !customerPhone) {
-      navigate('/min-konto');
-    }
+    if (!customerEmail || !customerPhone) navigate('/min-konto');
   }, []);
 
   const loadAppointments = useCallback(async () => {
     if (!customerEmail || !customerPhone) return;
     try {
       const { data, error } = await supabase
-    .from('appointments')
-    .select(`
-      *,
-      barbers (
-        name
-      )
-    `)
-    .eq('customer_email', customerEmail)
-    .eq('customer_phone', customerPhone)
-    .order('appointment_date', { ascending: true });
-
+        .from('appointments')
+        .select(`*, barbers(name)`)
+        .eq('customer_email', customerEmail)
+        .eq('customer_phone', customerPhone)
+        .order('appointment_date', { ascending: true });
       if (error) throw error;
       setAppointments(data || []);
     } catch (err) {
@@ -314,13 +110,11 @@ export default function CustomerPortalDashboard() {
     }
   }, [customerEmail, customerPhone]);
 
-
-  
   useEffect(() => { loadAppointments(); }, [loadAppointments]);
 
   const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(''), 3500);
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 3500);
   };
 
   const handleLogout = () => {
@@ -338,9 +132,7 @@ export default function CustomerPortalDashboard() {
         .from('appointments')
         .update({ status: 'cancelled' })
         .eq('id', cancelTarget.id);
-
       if (error) throw error;
-
       showToast('✓ Booking annulleret.');
       setCancelTarget(null);
       await loadAppointments();
@@ -352,166 +144,334 @@ export default function CustomerPortalDashboard() {
     }
   };
 
-  // Split into upcoming / past
-  const upcoming = appointments.filter(
-    (a) => a.status !== 'cancelled' && isFuture(aptDateTime(a))
-  );
-  const past = appointments.filter(
-    (a) => isPast(aptDateTime(a)) || a.status === 'cancelled'
-  );
+  const upcoming = appointments.filter(a => a.status !== 'cancelled' && isFuture(aptDateTime(a)));
+  const past     = appointments.filter(a => isPast(aptDateTime(a)) || a.status === 'cancelled');
   const displayList = tab === 'upcoming' ? upcoming : past;
 
   const canAct = (apt: Appointment) =>
-    apt.status !== 'cancelled' &&
-    apt.status !== 'completed' &&
-    isFuture(aptDateTime(apt));
+    apt.status !== 'cancelled' && apt.status !== 'completed' && isFuture(aptDateTime(apt));
 
+  /* ── palette ── */
+  const navy  = '#0a2240';
+  const gold  = '#c8a96e';
+  const cream = '#faf7f2';
+  const white = '#ffffff';
+  const muted = '#6b7280';
+
+  /* ── Loading ── */
   if (isLoading) {
     return (
       <>
-        <style>{CSS}</style>
-        <div className="cd-loading">
-          <div className="cd-spinner" />
+        <style>{KEYFRAMES}</style>
+        <div style={{
+          minHeight: '100vh', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', background: cream, flexDirection: 'column', gap: 20,
+        }}>
+          <div style={{
+            width: 48, height: 48, border: `3px solid #e8e0d5`,
+            borderTopColor: navy, borderRadius: '50%',
+            animation: 'spin .8s linear infinite',
+          }} />
+          <p style={{ fontFamily: "'Outfit', sans-serif", color: muted, fontSize: 13 }}>Henter dine bookinger…</p>
         </div>
       </>
     );
   }
 
+  /* ── Stat card data ── */
+  const stats = [
+    { icon: '📅', val: upcoming.length,                                                label: 'Kommende',    accent: navy },
+    { icon: '✅', val: appointments.filter(a => a.status === 'completed').length,      label: 'Gennemførte', accent: '#166534' },
+    { icon: '📋', val: appointments.length,                                            label: 'I alt',       accent: muted },
+  ];
+
   return (
     <>
-      <style>{CSS}</style>
+      <style>{KEYFRAMES}</style>
 
-      {/* Toast */}
-      {toast && <div className="cd-toast">{toast}</div>}
+      {/* ── Toast ── */}
+      {toastMsg && (
+        <div style={{
+          position: 'fixed', top: 20, right: 20, zIndex: 9999,
+          background: navy, color: white,
+          padding: '13px 22px', borderRadius: 14,
+          fontSize: 14, fontWeight: 600,
+          boxShadow: '0 12px 36px rgba(10,34,64,.3)',
+          borderLeft: `4px solid ${gold}`,
+          animation: 'slideDown .3s ease',
+          fontFamily: "'Outfit', sans-serif",
+        }}>
+          {toastMsg}
+        </div>
+      )}
 
-      <div className="cd-root">
-        {/* Header */}
-        <header className="cd-header">
-          <div className="cd-header-inner">
-            <div className="cd-logo-wrap">
-              
-                <img className="cd-logo-ring"
-                src="/logo192.png" 
-                alt="Frisør Nærum Logo" 
-                
-              />
+      <div style={{ minHeight: '100vh', background: cream, fontFamily: "'Outfit', sans-serif" }}>
+
+        {/* ── Header ── */}
+        <header style={{
+          background: navy,
+          borderBottom: `2px solid ${gold}`,
+          position: 'sticky', top: 0, zIndex: 100,
+        }}>
+          <div style={{
+            maxWidth: 820, margin: '0 auto', padding: '0 28px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            height: 68,
+          }}>
+            {/* Logo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 11,
+                border: `1.5px solid ${gold}`,
+                overflow: 'hidden', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <img src="/logo192.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
               <div>
-                <div className="cd-logo-name">Frisør Nærum</div>
-                
-                <div className="cd-logo-sub">Mine Bookinger</div>
+                <div style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 15, fontWeight: 600, color: white, lineHeight: 1,
+                }}>Frisør Nærum</div>
+                <div style={{
+                  fontSize: 10, color: gold, letterSpacing: '1.5px',
+                  textTransform: 'uppercase', marginTop: 3,
+                }}>Mine Bookinger</div>
               </div>
             </div>
-            <div className="cd-header-right">
-              <span className="cd-welcome">
-                Hej, <strong>{customerName.split(' ')[0]}</strong>
+
+            {/* Right */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,.5)' }}>
+                Hej,{' '}
+                <strong style={{ color: gold, fontWeight: 600 }}>
+                  {customerName.split(' ')[0]}
+                </strong>
               </span>
-              <button className="cd-logout" onClick={handleLogout}>Log ud</button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: '7px 18px',
+                  border: '1px solid rgba(255,255,255,.18)',
+                  borderRadius: 9, background: 'transparent',
+                  color: 'rgba(255,255,255,.6)',
+                  fontSize: 12, fontWeight: 600,
+                  fontFamily: "'Outfit', sans-serif",
+                  cursor: 'pointer', transition: 'all .2s',
+                }}
+                onMouseEnter={e => {
+                  (e.target as HTMLElement).style.borderColor = gold;
+                  (e.target as HTMLElement).style.color = gold;
+                }}
+                onMouseLeave={e => {
+                  (e.target as HTMLElement).style.borderColor = 'rgba(255,255,255,.18)';
+                  (e.target as HTMLElement).style.color = 'rgba(255,255,255,.6)';
+                }}
+              >
+                Log ud
+              </button>
             </div>
           </div>
         </header>
 
-        <main className="cd-main">
-          {/* Stats */}
-          <div className="cd-stats">
-            {[
-              { icon: '📅', val: upcoming.length, lbl: 'Kommende',    color: '#0a2540' },
-              { icon: '✅', val: appointments.filter(a => a.status === 'completed').length, lbl: 'Gennemførte', color: '#166534' },
-              { icon: '📋', val: appointments.length, lbl: 'I alt',    color: '#6b7280' },
-            ].map((s) => (
-              <div key={s.lbl} className="cd-stat" style={{ borderTop: `3px solid ${s.color}` }}>
-                <span className="cd-stat-icon">{s.icon}</span>
+        {/* ── Main ── */}
+        <main style={{ maxWidth: 820, margin: '0 auto', padding: '40px 28px 72px' }}>
+
+          {/* Stats row */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3,1fr)',
+            gap: 16, marginBottom: 36,
+          }}>
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                style={{
+                  background: white, borderRadius: 18, padding: '20px 22px',
+                  boxShadow: '0 2px 12px rgba(10,34,64,.07)',
+                  borderTop: `3px solid ${s.accent}`,
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  animation: `fadeUp .5s ease ${i * .08}s both`,
+                }}
+              >
+                <span style={{ fontSize: 28, flexShrink: 0 }}>{s.icon}</span>
                 <div>
-                  <div className="cd-stat-val" style={{ color: s.color }}>{s.val}</div>
-                  <div className="cd-stat-lbl">{s.lbl}</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: s.accent, lineHeight: 1 }}>{s.val}</div>
+                  <div style={{ fontSize: 11, color: muted, fontWeight: 500, marginTop: 4 }}>{s.label}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Tabs */}
-          <div className="cd-tabs">
-            <button
-              className={`cd-tab ${tab === 'upcoming' ? 'active' : 'inactive'}`}
-              onClick={() => setTab('upcoming')}
-            >
-              Kommende ({upcoming.length})
-            </button>
-            <button
-              className={`cd-tab ${tab === 'past' ? 'active' : 'inactive'}`}
-              onClick={() => setTab('past')}
-            >
-              Historik ({past.length})
-            </button>
+          <div style={{
+            display: 'flex', background: white,
+            borderRadius: 14, padding: 4,
+            border: '1px solid #ede8e0',
+            marginBottom: 26,
+            boxShadow: '0 1px 6px rgba(10,34,64,.05)',
+          }}>
+            {(['upcoming', 'past'] as const).map(t => {
+              const active = tab === t;
+              const label  = t === 'upcoming' ? `Kommende (${upcoming.length})` : `Historik (${past.length})`;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  style={{
+                    flex: 1, padding: '11px 0',
+                    border: 'none', borderRadius: 11,
+                    fontSize: 13, fontWeight: 600,
+                    fontFamily: "'Outfit', sans-serif",
+                    cursor: 'pointer', transition: 'all .25s',
+                    background: active ? navy : 'transparent',
+                    color: active ? white : muted,
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Appointment Cards */}
+          {/* Cards or empty */}
           {displayList.length === 0 ? (
-            <div className="cd-empty">
-              <div className="cd-empty-icon">📅</div>
-              <div className="cd-empty-title">
+            <div style={{
+              background: white, borderRadius: 22,
+              padding: '60px 28px', textAlign: 'center',
+              boxShadow: '0 2px 12px rgba(10,34,64,.06)',
+              border: '1px solid #ede8e0',
+              animation: 'fadeUp .4s ease both',
+            }}>
+              <div style={{ fontSize: 56, marginBottom: 18 }}>📅</div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 22, fontWeight: 600, color: navy, marginBottom: 10,
+              }}>
                 {tab === 'upcoming' ? 'Ingen kommende bookinger' : 'Ingen historik endnu'}
               </div>
-              <p className="cd-empty-sub">
+              <p style={{ fontSize: 14, color: muted, marginBottom: 26 }}>
                 {tab === 'upcoming'
                   ? 'Book din næste tid hos os online'
                   : 'Dine tidligere besøg vises her'}
               </p>
               {tab === 'upcoming' && (
-                <button className="cd-book-btn" onClick={() => navigate('/book')}>
+                <button
+                  onClick={() => navigate('/book')}
+                  style={{
+                    padding: '13px 30px', border: 'none', borderRadius: 12,
+                    background: `linear-gradient(135deg, ${navy}, #1a3a5c)`,
+                    color: white, fontSize: 14, fontWeight: 600,
+                    fontFamily: "'Outfit', sans-serif",
+                    cursor: 'pointer', boxShadow: '0 4px 14px rgba(10,34,64,.25)',
+                  }}
+                >
                   Book en tid →
                 </button>
               )}
             </div>
           ) : (
-            displayList.map((apt) => {
-              const s    = STATUS_MAP[apt.status] ?? STATUS_MAP.pending;
+            displayList.map((apt, idx) => {
+              const s = STATUS_MAP[apt.status] ?? STATUS_MAP.pending;
               const time = apt.appointment_time.substring(0, 5);
-              const stripe =
-                apt.status === 'confirmed'  ? `linear-gradient(90deg,#0a2540,#c8a96e)` :
-                apt.status === 'pending'    ? '#f59e0b' :
-                apt.status === 'cancelled'  ? '#dc2626' : '#d1d5db';
+              const isHovered = hoveredCard === apt.id;
+
+              const stripeGradient =
+                apt.status === 'confirmed' ? `linear-gradient(90deg, ${navy}, ${gold})` :
+                apt.status === 'pending'   ? '#f59e0b' :
+                apt.status === 'cancelled' ? '#dc2626' : '#d1d5db';
 
               return (
-                <div key={apt.id} className="cd-card">
-                  <div className="cd-stripe" style={{ background: stripe }} />
-                  <div className="cd-card-body">
-                    <div className="cd-card-top">
+                <div
+                  key={apt.id}
+                  onMouseEnter={() => setHoveredCard(apt.id)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  style={{
+                    background: white, borderRadius: 20, overflow: 'hidden',
+                    boxShadow: isHovered
+                      ? '0 14px 36px rgba(10,34,64,.14)'
+                      : '0 4px 16px rgba(10,34,64,.07)',
+                    border: '1px solid #ede8e0',
+                    marginBottom: 14,
+                    transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+                    transition: 'all .25s ease',
+                    animation: `fadeUp .45s ease ${idx * .06}s both`,
+                  }}
+                >
+                  {/* Stripe */}
+                  <div style={{ height: 3, background: stripeGradient }} />
+
+                  {/* Body */}
+                  <div style={{ padding: '22px 24px' }}>
+                    {/* Top row */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
                       <div>
-                        
-                        <div className="cd-card-title">{getServiceName(apt.service_type)}</div>
-
-                        
-                        <div className="cd-card-barber"> Frisør: {apt.barbers.name || "Ukendt"}</div>
-                        
-
+                        <div style={{
+                          fontFamily: "'Cormorant Garamond', serif",
+                          fontSize: 18, fontWeight: 600, color: navy,
+                        }}>
+                          {getServiceName(apt.service_type)}
+                        </div>
+                        <div style={{ fontSize: 12, color: muted, marginTop: 4 }}>
+                          Frisør: {apt.barbers?.name ?? 'Ukendt'}
+                        </div>
                       </div>
-                      <span
-                        className="cd-badge"
-                        style={{ color: s.color, background: s.bg, borderColor: s.border }}
-                      >
+                      <span style={{
+                        padding: '4px 12px', borderRadius: 20,
+                        fontSize: 10, fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                        color: s.color, background: s.bg,
+                        border: `1px solid ${s.border}`,
+                      }}>
                         {s.label}
                       </span>
                     </div>
 
-                    <div className="cd-meta">
-                      <span className="cd-meta-item">📅 {fmtDate(apt.appointment_date)}</span>
-                      <span className="cd-meta-item">🕐 {time} · {apt.duration ?? 30} min</span>
-                      {apt.price && (
-                        <span className="cd-meta-item">💰 {apt.price},00 kr.</span>
-                      )}
+                    {/* Meta */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginBottom: 18 }}>
+                      {[
+                        { icon: '📅', text: fmtDate(apt.appointment_date) },
+                        { icon: '🕐', text: `${time} · ${apt.duration ?? 30} min` },
+                        ...(apt.price ? [{ icon: '💰', text: `${apt.price},00 kr.` }] : []),
+                      ].map(item => (
+                        <span key={item.icon} style={{
+                          display: 'flex', alignItems: 'center', gap: 6,
+                          fontSize: 12, color: muted,
+                        }}>
+                          {item.icon} {item.text}
+                        </span>
+                      ))}
                     </div>
 
+                    {/* Actions */}
                     {canAct(apt) && (
-                      <div className="cd-actions">
+                      <div style={{ display: 'flex', gap: 10 }}>
                         <button
-                          className="cd-btn-primary"
                           onClick={() => setRescheduleTarget(apt)}
+                          style={{
+                            flex: 1, padding: '10px 0',
+                            border: `1.5px solid ${navy}`, borderRadius: 10,
+                            background: navy, color: white,
+                            fontSize: 12, fontWeight: 600,
+                            fontFamily: "'Outfit', sans-serif",
+                            cursor: 'pointer', transition: 'background .2s',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#1a3a5c')}
+                          onMouseLeave={e => (e.currentTarget.style.background = navy)}
                         >
                           ✏ Ændr tidspunkt
                         </button>
                         <button
-                          className="cd-btn-outline"
                           onClick={() => setCancelTarget(apt)}
+                          style={{
+                            flex: 1, padding: '10px 0',
+                            border: '1.5px solid #fca5a5', borderRadius: 10,
+                            background: white, color: '#991b1b',
+                            fontSize: 12, fontWeight: 600,
+                            fontFamily: "'Outfit', sans-serif",
+                            cursor: 'pointer', transition: 'background .2s',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#fef2f2')}
+                          onMouseLeave={e => (e.currentTarget.style.background = white)}
                         >
                           ✕ Annuller
                         </button>
@@ -523,43 +483,143 @@ export default function CustomerPortalDashboard() {
             })
           )}
 
-          {/* CTA */}
-          <div className="cd-cta">
-            <div className="cd-cta-title">Klar til næste besøg?</div>
-            <div className="cd-cta-sub">Book din næste tid nemt og hurtigt online</div>
-            <button className="cd-cta-btn" onClick={() => navigate('/book')}>
+          {/* CTA Banner */}
+          <div style={{
+            marginTop: 44, padding: '34px 32px',
+            background: navy, borderRadius: 22,
+            textAlign: 'center', position: 'relative', overflow: 'hidden',
+          }}>
+            {/* decorative circle */}
+            <div style={{
+              position: 'absolute', top: -40, right: -40,
+              width: 140, height: 140, borderRadius: '50%',
+              background: `rgba(200,169,110,.1)`, pointerEvents: 'none',
+            }} />
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 22, fontWeight: 600, color: white,
+              marginBottom: 8, position: 'relative',
+            }}>
+              Klar til næste besøg?
+            </div>
+            <div style={{
+              fontSize: 13, color: 'rgba(255,255,255,.5)',
+              marginBottom: 20, position: 'relative',
+            }}>
+              Book din næste tid nemt og hurtigt online
+            </div>
+            <button
+              onClick={() => navigate('/book')}
+              style={{
+                padding: '12px 30px',
+                border: `1.5px solid ${gold}`, borderRadius: 11,
+                background: 'transparent', color: gold,
+                fontSize: 14, fontWeight: 600,
+                fontFamily: "'Outfit', sans-serif",
+                cursor: 'pointer', transition: 'all .2s', position: 'relative',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = gold;
+                e.currentTarget.style.color = navy;
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = gold;
+              }}
+            >
               ✂ Book ny tid
             </button>
           </div>
         </main>
       </div>
 
-      {/* Cancel confirm dialog */}
+      {/* ── Cancel Dialog ── */}
       {cancelTarget && (
-        <div className="cd-overlay" onClick={() => setCancelTarget(null)}>
-          <div className="cd-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="cd-dialog-icon">🗑️</div>
-            <div className="cd-dialog-title">Annuller Booking?</div>
-            <p className="cd-dialog-sub">Denne handling kan ikke fortrydes.</p>
-            <div className="cd-dialog-info">
-              <div className="cd-dialog-info-title">{cancelTarget.service_type}</div>
-              <div className="cd-dialog-info-sub">
-                {fmtDate(cancelTarget.appointment_date)} · {cancelTarget.appointment_time.substring(0, 5)}
+        <div
+          onClick={() => setCancelTarget(null)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(10,34,64,.65)', backdropFilter: 'blur(5px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000, padding: 16, animation: 'fadeIn .2s ease',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: white, borderRadius: 24,
+              padding: '0 0 32px', maxWidth: 390, width: '100%',
+              boxShadow: '0 40px 100px rgba(10,34,64,.35)',
+              animation: 'slideDown .25s ease', overflow: 'hidden',
+            }}
+          >
+            {/* Gold top bar */}
+            <div style={{
+              height: 4,
+              background: `linear-gradient(90deg, ${gold}, #e8d5a3, ${gold})`,
+            }} />
+            <div style={{ padding: '28px 32px 0' }}>
+              <div style={{ fontSize: 46, textAlign: 'center', marginBottom: 16 }}>🗑️</div>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 23, fontWeight: 600, color: navy,
+                textAlign: 'center', marginBottom: 8,
+              }}>
+                Annuller Booking?
               </div>
-            </div>
-            <div className="cd-dialog-actions">
-              <button className="cd-dialog-keep" onClick={() => setCancelTarget(null)} disabled={cancelLoading}>
-                Behold
-              </button>
-              <button className="cd-dialog-cancel" onClick={handleCancelConfirm} disabled={cancelLoading}>
-                {cancelLoading ? 'Annullerer…' : 'Ja, annuller'}
-              </button>
+              <p style={{ fontSize: 13, color: muted, textAlign: 'center', marginBottom: 20 }}>
+                Denne handling kan ikke fortrydes.
+              </p>
+              <div style={{
+                background: cream, border: '1px solid #ede8e0', borderRadius: 14,
+                padding: '14px 18px', marginBottom: 24,
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: navy, marginBottom: 4 }}>
+                  {getServiceName(cancelTarget.service_type)}
+                </div>
+                <div style={{ fontSize: 12, color: muted }}>
+                  {fmtDate(cancelTarget.appointment_date)} · {cancelTarget.appointment_time.substring(0, 5)}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  onClick={() => setCancelTarget(null)}
+                  disabled={cancelLoading}
+                  style={{
+                    flex: 1, padding: 13,
+                    border: '1.5px solid #ede8e0', borderRadius: 11,
+                    background: white, color: navy,
+                    fontSize: 14, fontWeight: 600,
+                    fontFamily: "'Outfit', sans-serif",
+                    cursor: 'pointer',
+                  }}
+                >
+                  Behold
+                </button>
+                <button
+                  onClick={handleCancelConfirm}
+                  disabled={cancelLoading}
+                  style={{
+                    flex: 1, padding: 13, border: 'none', borderRadius: 11,
+                    background: '#dc2626', color: white,
+                    fontSize: 14, fontWeight: 600,
+                    fontFamily: "'Outfit', sans-serif",
+                    cursor: cancelLoading ? 'not-allowed' : 'pointer',
+                    opacity: cancelLoading ? .7 : 1,
+                    transition: 'background .2s',
+                  }}
+                  onMouseEnter={e => { if (!cancelLoading) e.currentTarget.style.background = '#b91c1c'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#dc2626'; }}
+                >
+                  {cancelLoading ? 'Annullerer…' : 'Ja, annuller'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reschedule modal */}
+      {/* ── Reschedule Modal ── */}
       {rescheduleTarget && (
         <CustomerRescheduleModal
           appointment={rescheduleTarget}
