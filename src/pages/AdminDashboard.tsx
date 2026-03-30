@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, isFuture, parseISO, addDays, startOfWeek } from "date-fns";
 import BarberPhotoUpload from "@/components/BarberPhotoUpload";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Calendar, Clock, Users, LogOut, ArrowUpDown, Filter,
   Plus, Trash2, PencilLine, Save, X, FileText, Upload,
@@ -490,6 +491,7 @@ export default function AdminDashboard() {
   const [svcFeatures, setSvcFeatures] = useState<string[]>([]);
   const [svcTags, setSvcTags] = useState<string[]>([]);
   const [svcFeatured, setSvcFeatured] = useState(false);
+  const { language } = useLanguage();
 
   // Inline edit state for services
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
@@ -827,14 +829,17 @@ const getServicePrice = (serviceType: string) => {
     barbers.find((b) => b.id === barberId)?.name ?? "Unknown";
 
   const getServiceLabel = (serviceType: string) => {
-  const match = services.find(
+  const match = (servicesData as any[]).find(
     (s) =>
       s.id === serviceType ||
       s.name === serviceType ||
       s.id.toLowerCase().startsWith(serviceType.toLowerCase()) ||
       serviceType.toLowerCase().startsWith(s.id.toLowerCase())
   );
-  return match?.name ?? serviceType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+  if (!match) return serviceType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+
+  return language === "da" && match.name_da ? match.name_da : match.name;
 };
 
   const getStatusColor = (status: string) => {
