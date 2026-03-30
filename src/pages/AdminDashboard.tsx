@@ -16,7 +16,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Calendar, Clock, Users, LogOut, ArrowUpDown, Filter,
   Plus, Trash2, PencilLine, Save, X, FileText, Upload,
-  AlertTriangle, ChevronLeft, ChevronRight, Copy,
+  AlertTriangle, ChevronLeft, ChevronRight, Copy, CalendarRange,
+  CheckCircle2, XCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -76,14 +77,13 @@ interface Service {
   featured?: boolean;
 }
 
-// Per-day schedule (UI layer — mapped to BarberAvailability rows on save)
 interface DaySchedule {
   isOpen: boolean;
   startTime: string;
   endTime: string;
 }
 
-type WeekSchedule = Record<string, DaySchedule>; // key = "YYYY-MM-DD"
+type WeekSchedule = Record<string, DaySchedule>;
 
 const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DEFAULT_CLOSED: DaySchedule = { isOpen: false, startTime: "09:00", endTime: "18:00" };
@@ -133,29 +133,302 @@ const downloadServicesAsJSON = (services: Service[], filename = "services.json")
 ========================= */
 
 const getWeekStart = (date: Date): Date => startOfWeek(date, { weekStartsOn: 1 });
-
 const getWeekDates = (weekStart: Date): string[] =>
   Array.from({ length: 7 }, (_, i) => format(addDays(weekStart, i), "yyyy-MM-dd"));
-
 const buildEmptyWeek = (weekDates: string[]): WeekSchedule =>
   Object.fromEntries(weekDates.map((d) => [d, { ...DEFAULT_CLOSED }]));
-
 const seedWeekFromAvailability = (
-  weekDates: string[],
-  availability: BarberAvailability[],
-  barberId: string
+  weekDates: string[], availability: BarberAvailability[], barberId: string
 ): WeekSchedule => {
   const schedule = buildEmptyWeek(weekDates);
   for (const date of weekDates) {
     const match = availability.find(
       (a) => a.barber_id === barberId && a.from_date <= date && a.to_date >= date
     );
-    if (match) {
+    if (match)
       schedule[date] = { isOpen: match.is_available, startTime: match.start_time, endTime: match.end_time };
-    }
   }
   return schedule;
 };
+
+/* =========================
+   RangeAvailabilityPanel
+   — new sub-component for date-range overrides
+========================= */
+
+interface RangeAvailabilityPanelProps {
+  barberId: string;
+  barberName: string;
+  availability: BarberAvailability[];
+  onSaveRange: (
+    barberId: string, isAvailable: boolean,
+    startTime: string, endTime: string,
+    fromDate: string, toDate: string
+  ) => Promise<void>;
+  onDeleteRange: (availId: string) => Promise<void>;
+}
+
+function RangeAvailabilityPanel({
+  barberId, barberName, availability, onSaveRange, onDeleteRange,
+}: RangeAvailabilityPanelProps) {
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("18:00");
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
+
+  // All ranges for this barber (both single-day and multi-day), sorted newest first
+  const barberRanges = availability
+    .filter((a) => a.barber_id === barberId)
+    .sort((a, b) => b.from_date.localeCompare(a.from_date));
+
+  const validate = (): string | null => {
+    if (!fromDate) return "Please select a start date.";
+    if (!toDate)   return "Please select an end date.";
+    if (toDate < fromDate) return "End date must be on or after start date.";
+    if (!startTime || !endTime) return "Please set working hours.";
+    if (endTime <= startTime) return "End time must be after start time.";
+    return null;
+  };
+
+  const handleSave = async () => {
+    const err = validate();
+    if (err) { toast({ title: "Validation error", description: err, variant: "destructive" }); return; }
+    setIsSaving(true);
+    try {
+      await onSaveRange(barberId, isAvailable, startTime, endTime, fromDate, toDate);
+      toast({
+        title: "Range saved",
+        description: `${barberName}: ${fromDate} → ${toDate} marked as ${isAvailable ? "available" : "unavailable"}.`,
+      });
+      // Reset form
+      setFromDate(""); setToDate(""); setStartTime("09:00"); setEndTime("18:00"); setIsAvailable(true);
+    } catch {
+      toast({ title: "Error", description: "Failed to save range.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // How many days does a range span?
+  const rangeDays = (from: string, to: string) => {
+    const d1 = new Date(from), d2 = new Date(to);
+    return Math.round((d2.getTime() - d1.getTime()) / 86400000) + 1;
+  };
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      {/* Toggle header */}
+      <button
+        type="button"
+        onClick={() => setIsExpanded((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+      >
+        <div className="flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold">Date Range Availability</span>
+          {barberRanges.length > 0 && (
+            <Badge className="bg-primary/10 text-primary text-xs">{barberRanges.length} range{barberRanges.length !== 1 ? "s" : ""}</Badge>
+          )}
+        </div>
+        <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+      </button>
+
+      {isExpanded && (
+        <div className="p-4 space-y-5 border-t">
+          {/* ── Add range form ── */}
+          <div>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              Add / update a range
+            </p>
+
+            {/* Availability toggle */}
+            <div className="flex items-center gap-3 mb-4 p-3 rounded-lg border bg-background">
+              <div className={`flex items-center gap-2 flex-1 ${isAvailable ? "text-emerald-700" : "text-red-600"}`}>
+                {isAvailable
+                  ? <CheckCircle2 className="h-4 w-4" />
+                  : <XCircle className="h-4 w-4" />}
+                <span className="text-sm font-medium">
+                  {isAvailable ? "Barber is available (working)" : "Barber is unavailable (holiday / off)"}
+                </span>
+              </div>
+              <Switch
+                checked={isAvailable}
+                onCheckedChange={setIsAvailable}
+              />
+            </div>
+
+            {/* Date range row */}
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <Label className="text-xs mb-1 block">From date</Label>
+                <Input
+                  type="date"
+                  value={fromDate}
+                  min={format(new Date(), "yyyy-MM-dd")}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    // Auto-advance toDate if it's before fromDate
+                    if (toDate && toDate < e.target.value) setToDate(e.target.value);
+                  }}
+                  className="h-9 text-sm"
+                />
+              </div>
+              <div>
+                <Label className="text-xs mb-1 block">To date</Label>
+                <Input
+                  type="date"
+                  value={toDate}
+                  min={fromDate || format(new Date(), "yyyy-MM-dd")}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="h-9 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Duration preview */}
+            {fromDate && toDate && toDate >= fromDate && (
+              <div className="text-xs text-muted-foreground mb-3 flex items-center gap-1.5">
+                <CalendarRange className="h-3 w-3" />
+                {rangeDays(fromDate, toDate)} day{rangeDays(fromDate, toDate) !== 1 ? "s" : ""} selected
+                {" "}({fromDate === toDate ? "single day" : `${fromDate} – ${toDate}`})
+              </div>
+            )}
+
+            {/* Hours row — only relevant when available */}
+            {isAvailable && (
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <Label className="text-xs mb-1 block">Start time</Label>
+                  <Input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs mb-1 block">End time</Label>
+                  <Input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+              </div>
+            )}
+
+            <Button
+              className="w-full"
+              onClick={handleSave}
+              disabled={isSaving || !fromDate || !toDate}
+              size="sm"
+            >
+              {isSaving ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                  Saving…
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Save className="h-3.5 w-3.5" />
+                  Save Range
+                </span>
+              )}
+            </Button>
+          </div>
+
+          {/* ── Existing ranges list ── */}
+          {barberRanges.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Existing ranges
+              </p>
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                {barberRanges.map((a) => {
+                  const days = rangeDays(a.from_date, a.to_date);
+                  const isPast = a.to_date < format(new Date(), "yyyy-MM-dd");
+                  return (
+                    <div
+                      key={a.id}
+                      className={`flex items-center justify-between rounded-md border px-3 py-2.5 text-sm gap-2
+                        ${isPast ? "opacity-50 bg-muted/20" : "bg-background"}`}
+                    >
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium shrink-0 text-xs">
+                            {a.from_date === a.to_date ? a.from_date : `${a.from_date} → ${a.to_date}`}
+                          </span>
+                          <Badge className="text-xs shrink-0 px-1.5 py-0">
+                            {days} day{days !== 1 ? "s" : ""}
+                          </Badge>
+                          <Badge
+                            className={`text-xs shrink-0 px-1.5 py-0 ${
+                              a.is_available
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {a.is_available ? "Available" : "Unavailable"}
+                          </Badge>
+                          {isPast && <Badge className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0">Past</Badge>}
+                        </div>
+                        {a.is_available && (
+                          <span className="text-xs text-muted-foreground">
+                            {a.start_time} – {a.end_time}
+                          </span>
+                        )}
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm" variant="ghost"
+                            className="text-muted-foreground hover:text-destructive h-7 w-7 p-0 shrink-0"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete this range?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Remove availability range{" "}
+                              <strong>{a.from_date}{a.from_date !== a.to_date ? ` → ${a.to_date}` : ""}</strong> for{" "}
+                              <strong>{barberName}</strong>? This cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Keep</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => onDeleteRange(a.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Delete Range
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {barberRanges.length === 0 && (
+            <p className="text-xs text-center text-muted-foreground py-2">
+              No ranges set yet. Use the form above to add one.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* =========================
    BarberScheduleCard
@@ -238,13 +511,10 @@ function BarberScheduleCard({
   })();
 
   const openDaysCount = weekDates.filter((d) => schedule[d]?.isOpen).length;
-  const multiDayRanges = availability.filter(
-    (a) => a.barber_id === barber.id && a.from_date !== a.to_date
-  );
 
   return (
     <Card className="overflow-hidden">
-      {/* Header: photo + name + status badges */}
+      {/* Header */}
       <div className="flex items-center gap-4 px-6 pt-5 pb-4 border-b bg-muted/20">
         <BarberPhotoUpload
           barberId={barber.id}
@@ -271,20 +541,14 @@ function BarberScheduleCard({
       <CardContent className="pt-5 space-y-4">
         {/* Week navigator */}
         <div className="flex items-center justify-between">
-          <Button
-            variant="ghost" size="icon" className="h-8 w-8"
-            onClick={() => { setWeekStart((w) => addDays(w, -7)); }}
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWeekStart((w) => addDays(w, -7))}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-center">
             <p className="text-sm font-semibold">{weekLabel}</p>
             {isCurrentWeek && <p className="text-xs text-blue-600 font-medium">Current week</p>}
           </div>
-          <Button
-            variant="ghost" size="icon" className="h-8 w-8"
-            onClick={() => { setWeekStart((w) => addDays(w, 7)); }}
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWeekStart((w) => addDays(w, 7))}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -299,12 +563,11 @@ function BarberScheduleCard({
           ))}
         </div>
 
-        {/* Day schedule rows */}
+        {/* Day rows */}
         <div className="rounded-lg border overflow-hidden">
           {weekDates.map((date, i) => {
             const day = schedule[date] ?? { ...DEFAULT_CLOSED };
             const todayRow = isToday(parseISO(date));
-
             return (
               <div
                 key={date}
@@ -312,41 +575,17 @@ function BarberScheduleCard({
                   ${todayRow ? "bg-blue-50/70" : "bg-background hover:bg-muted/30"}
                   ${!day.isOpen ? "opacity-60" : ""}`}
               >
-                {/* Toggle */}
-                <Switch
-                  checked={day.isOpen}
-                  onCheckedChange={(v) => updateDay(date, { isOpen: v })}
-                  className="shrink-0"
-                />
-
-                {/* Day + date */}
+                <Switch checked={day.isOpen} onCheckedChange={(v) => updateDay(date, { isOpen: v })} className="shrink-0" />
                 <div className="w-[4.5rem] shrink-0">
-                  <span className={`text-sm font-semibold ${todayRow ? "text-blue-700" : ""}`}>
-                    {DAYS_OF_WEEK[i]}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {format(parseISO(date), "d MMM")}
-                  </span>
+                  <span className={`text-sm font-semibold ${todayRow ? "text-blue-700" : ""}`}>{DAYS_OF_WEEK[i]}</span>
+                  <span className="block text-xs text-muted-foreground">{format(parseISO(date), "d MMM")}</span>
                 </div>
-
-                {/* Hours or "Closed" */}
                 {day.isOpen ? (
                   <div className="flex items-center gap-2 flex-1">
                     <Clock className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                    <Input
-                      type="time"
-                      value={day.startTime}
-                      onChange={(e) => updateDay(date, { startTime: e.target.value })}
-                      className="h-8 w-[105px] text-sm"
-                    />
+                    <Input type="time" value={day.startTime} onChange={(e) => updateDay(date, { startTime: e.target.value })} className="h-8 w-[105px] text-sm" />
                     <span className="text-muted-foreground text-sm shrink-0">–</span>
-                    <Input
-                      type="time"
-                      value={day.endTime}
-                      onChange={(e) => updateDay(date, { endTime: e.target.value })}
-                      className="h-8 w-[105px] text-sm"
-                    />
-                    {/* Hours summary */}
+                    <Input type="time" value={day.endTime} onChange={(e) => updateDay(date, { endTime: e.target.value })} className="h-8 w-[105px] text-sm" />
                     {day.startTime && day.endTime && (
                       <span className="text-xs text-muted-foreground hidden sm:block shrink-0">
                         {(() => {
@@ -354,8 +593,7 @@ function BarberScheduleCard({
                           const [eh, em] = day.endTime.split(":").map(Number);
                           const mins = (eh * 60 + em) - (sh * 60 + sm);
                           if (mins <= 0) return "";
-                          const h = Math.floor(mins / 60);
-                          const m = mins % 60;
+                          const h = Math.floor(mins / 60), m = mins % 60;
                           return m === 0 ? `${h}h` : `${h}h ${m}m`;
                         })()}
                       </span>
@@ -369,14 +607,9 @@ function BarberScheduleCard({
           })}
         </div>
 
-        {/* Save + Copy actions */}
+        {/* Save + Copy */}
         <div className="flex gap-2">
-          <Button
-            className="flex-1"
-            onClick={saveWeek}
-            disabled={isSaving || !hasChanges}
-            variant={hasChanges ? "default" : "outline"}
-          >
+          <Button className="flex-1" onClick={saveWeek} disabled={isSaving || !hasChanges} variant={hasChanges ? "default" : "outline"}>
             {isSaving ? (
               <span className="flex items-center gap-2">
                 <span className="h-3.5 w-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
@@ -389,45 +622,20 @@ function BarberScheduleCard({
               </span>
             )}
           </Button>
-          <Button
-            variant="outline"
-            onClick={copyToNextWeek}
-            disabled={isSaving}
-            title="Copy this week's schedule to the next week"
-          >
+          <Button variant="outline" onClick={copyToNextWeek} disabled={isSaving} title="Copy this week's schedule to next week">
             <Copy className="h-3.5 w-3.5 mr-1.5" />
             Copy to next week
           </Button>
         </div>
 
-        {/* Multi-day overrides (ranges where from != to) */}
-        {multiDayRanges.length > 0 && (
-          <div className="border-t pt-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-              Multi-day overrides
-            </p>
-            <div className="space-y-1.5">
-              {multiDayRanges.map((a) => (
-                <div key={a.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
-                  <div className="flex items-center gap-2 min-w-0 flex-wrap">
-                    <span className="font-medium shrink-0">{a.from_date} → {a.to_date}</span>
-                    <span className="text-muted-foreground shrink-0">{a.start_time} – {a.end_time}</span>
-                    <Badge className={a.is_available ? "bg-emerald-100 text-emerald-700 text-xs" : "bg-red-100 text-red-600 text-xs"}>
-                      {a.is_available ? "Available" : "Unavailable"}
-                    </Badge>
-                  </div>
-                  <Button
-                    size="sm" variant="ghost"
-                    className="text-muted-foreground hover:text-destructive ml-2 h-7 w-7 p-0 shrink-0"
-                    onClick={() => onDeleteRange(a.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* ── Date Range Availability Panel (new) ── */}
+        <RangeAvailabilityPanel
+          barberId={barber.id}
+          barberName={barber.name}
+          availability={availability}
+          onSaveRange={onUpdate}
+          onDeleteRange={onDeleteRange}
+        />
 
         {/* Barber actions */}
         <div className="flex gap-2 pt-2 border-t">
@@ -474,16 +682,14 @@ export default function AdminDashboard() {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState<"date" | "time" | "customer" | "barber" | "status">("date");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");  // was "desc"
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"today" | "upcoming" | "all">("today");
   const [activeMainTab, setActiveMainTab] = useState<"appointments" | "barbers" | "services">("appointments");
 
-  // Add Barber form
   const [newBarberName, setNewBarberName] = useState("");
   const [newBarberActive, setNewBarberActive] = useState(true);
 
-  // Add Service form
   const [svcName, setSvcName] = useState("");
   const [svcDesc, setSvcDesc] = useState("");
   const [svcPrice, setSvcPrice] = useState<string>("");
@@ -493,7 +699,6 @@ export default function AdminDashboard() {
   const [svcFeatured, setSvcFeatured] = useState(false);
   const { language } = useLanguage();
 
-  // Inline edit state for services
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [editSvc, setEditSvc] = useState<{
     name: string; description: string; price: string; category: ServiceCategory;
@@ -503,14 +708,7 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-    loadData();
-  }, []);
-
-  /* =========================
-     Auth & Data
-  ========================= */
+  useEffect(() => { checkAuth(); loadData(); }, []);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -555,18 +753,12 @@ export default function AdminDashboard() {
     }
   };
 
-  /* =========================
-     Appointments
-  ========================= */
-
   const deleteAppointment = async (appointment: Appointment) => {
     try {
-      const { data: existing, error: fetchError } = await supabase
-        .from("appointments").select("*").eq("id", appointment.id).single();
+      const { data: existing, error: fetchError } = await supabase.from("appointments").select("*").eq("id", appointment.id).single();
       if (fetchError) throw fetchError;
       if (!existing) throw new Error("Appointment not found");
-      const { data: deleted, error: deleteError } = await supabase
-        .from("appointments").delete().eq("id", appointment.id).select();
+      const { data: deleted, error: deleteError } = await supabase.from("appointments").delete().eq("id", appointment.id).select();
       if (deleteError) throw deleteError;
       if (!deleted || deleted.length === 0) throw new Error("No rows deleted — check RLS policies");
       await new Promise((r) => setTimeout(r, 500));
@@ -579,26 +771,16 @@ export default function AdminDashboard() {
 
   const cancelAppointment = async (appointment: Appointment) => {
     try {
-      const { data: existing, error: fetchError } = await supabase
-        .from("appointments").select("*").eq("id", appointment.id).single();
+      const { data: existing, error: fetchError } = await supabase.from("appointments").select("*").eq("id", appointment.id).single();
       if (fetchError || !existing) throw new Error("Appointment not found");
-      const { data: updated, error: updateError } = await supabase
-        .from("appointments").update({ status: "cancelled" }).eq("id", appointment.id).select();
+      const { data: updated, error: updateError } = await supabase.from("appointments").update({ status: "cancelled" }).eq("id", appointment.id).select();
       if (updateError || !updated?.length) throw new Error("Failed to update (check RLS policies)");
       const barberName = getBarberName(appointment.barber_id);
-      const formattedDate = (() => {
-        try { return format(parseISO(appointment.appointment_date), "d. MMMM yyyy"); }
-        catch { return appointment.appointment_date; }
-      })();
+      const formattedDate = (() => { try { return format(parseISO(appointment.appointment_date), "d. MMMM yyyy"); } catch { return appointment.appointment_date; } })();
       const { error: notificationError } = await supabase.functions.invoke("send-cancellation-email", {
-        body: {
-          customerName: appointment.customer_name, customerEmail: appointment.customer_email,
-          customerPhone: appointment.customer_phone, appointmentDate: formattedDate,
-          appointmentTime: appointment.appointment_time, barberName,
-        },
+        body: { customerName: appointment.customer_name, customerEmail: appointment.customer_email, customerPhone: appointment.customer_phone, appointmentDate: formattedDate, appointmentTime: appointment.appointment_time, barberName },
       });
-      if (notificationError)
-        toast({ title: "Warning", description: "Cancelled but notification failed.", variant: "destructive" });
+      if (notificationError) toast({ title: "Warning", description: "Cancelled but notification failed.", variant: "destructive" });
       await loadData();
       toast({ title: "Cancelled", description: `${appointment.customer_name}'s appointment cancelled.` });
     } catch (error: any) {
@@ -607,23 +789,19 @@ export default function AdminDashboard() {
   };
 
   const sortAppointments = (list: Appointment[]) =>
-  [...list].sort((a, b) => {
-    // Always sort by date+time ascending as tiebreaker
-    const dateTimeA = `${a.appointment_date} ${a.appointment_time}`;
-    const dateTimeB = `${b.appointment_date} ${b.appointment_time}`;
-
-    let cmp = 0;
-    switch (sortBy) {
-      case "date": cmp = dateTimeA.localeCompare(dateTimeB); break;
-      case "time": cmp = a.appointment_time.localeCompare(b.appointment_time); break;
-      case "customer": cmp = a.customer_name.localeCompare(b.customer_name); break;
-      case "barber": cmp = getBarberName(a.barber_id).localeCompare(getBarberName(b.barber_id)); break;
-      case "status": cmp = a.status.localeCompare(b.status); break;
-    }
-
-    // If other columns are equal, fall back to date+time ascending
-    return cmp !== 0 ? (sortOrder === "asc" ? cmp : -cmp) : dateTimeA.localeCompare(dateTimeB);
-  });
+    [...list].sort((a, b) => {
+      const dateTimeA = `${a.appointment_date} ${a.appointment_time}`;
+      const dateTimeB = `${b.appointment_date} ${b.appointment_time}`;
+      let cmp = 0;
+      switch (sortBy) {
+        case "date": cmp = dateTimeA.localeCompare(dateTimeB); break;
+        case "time": cmp = a.appointment_time.localeCompare(b.appointment_time); break;
+        case "customer": cmp = a.customer_name.localeCompare(b.customer_name); break;
+        case "barber": cmp = getBarberName(a.barber_id).localeCompare(getBarberName(b.barber_id)); break;
+        case "status": cmp = a.status.localeCompare(b.status); break;
+      }
+      return cmp !== 0 ? (sortOrder === "asc" ? cmp : -cmp) : dateTimeA.localeCompare(dateTimeB);
+    });
 
   const filterAppointments = (list: Appointment[]) => {
     let filtered = statusFilter !== "all" ? list.filter((a) => a.status === statusFilter) : list;
@@ -637,15 +815,9 @@ export default function AdminDashboard() {
     else { setSortBy(col); setSortOrder("asc"); }
   };
 
-  /* =========================
-     Availability
-  ========================= */
-
   const isBarberAvailableToday = (barberId: string) => {
     const today = format(new Date(), "yyyy-MM-dd");
-    return availability.some(
-      (a) => a.barber_id === barberId && a.is_available && a.from_date <= today && a.to_date >= today
-    );
+    return availability.some((a) => a.barber_id === barberId && a.is_available && a.from_date <= today && a.to_date >= today);
   };
 
   const updateAvailability = async (
@@ -654,20 +826,33 @@ export default function AdminDashboard() {
     fromDate: string, toDate: string
   ) => {
     try {
-      const { data: existing, error: selectError } = await supabase
-        .from("barber_availability").select("id")
-        .eq("barber_id", barberId).eq("from_date", fromDate).eq("to_date", toDate)
-        .maybeSingle();
-      if (selectError) throw selectError;
-      if (existing && (existing as any).id) {
-        const { error } = await supabase.from("barber_availability")
-          .update({ is_available: isAvailable, start_time: startTime, end_time: endTime })
-          .eq("id", (existing as any).id);
+      // For a date range (from != to), always insert a new row instead of upsert
+      // so each multi-day range is stored as its own record.
+      if (fromDate !== toDate) {
+        const { error } = await supabase.from("barber_availability").insert({
+          barber_id: barberId, from_date: fromDate, to_date: toDate,
+          is_available: isAvailable, start_time: startTime, end_time: endTime,
+        });
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("barber_availability")
-          .insert({ barber_id: barberId, from_date: fromDate, to_date: toDate, is_available: isAvailable, start_time: startTime, end_time: endTime });
-        if (error) throw error;
+        // Single-day: upsert (update existing row for that exact date or insert)
+        const { data: existing, error: selectError } = await supabase
+          .from("barber_availability").select("id")
+          .eq("barber_id", barberId).eq("from_date", fromDate).eq("to_date", toDate)
+          .maybeSingle();
+        if (selectError) throw selectError;
+        if (existing && (existing as any).id) {
+          const { error } = await supabase.from("barber_availability")
+            .update({ is_available: isAvailable, start_time: startTime, end_time: endTime })
+            .eq("id", (existing as any).id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from("barber_availability").insert({
+            barber_id: barberId, from_date: fromDate, to_date: toDate,
+            is_available: isAvailable, start_time: startTime, end_time: endTime,
+          });
+          if (error) throw error;
+        }
       }
       await loadAvailability();
     } catch (err: any) {
@@ -686,17 +871,9 @@ export default function AdminDashboard() {
     }
   };
 
-  /* =========================
-     Barbers
-  ========================= */
-
   const addBarber = async () => {
-    if (!newBarberName.trim()) {
-      toast({ title: "Name required", description: "Please enter a barber name.", variant: "destructive" });
-      return;
-    }
-    const { error } = await supabase.from("barbers")
-      .insert([{ name: newBarberName.trim(), is_active: newBarberActive }]);
+    if (!newBarberName.trim()) { toast({ title: "Name required", description: "Please enter a barber name.", variant: "destructive" }); return; }
+    const { error } = await supabase.from("barbers").insert([{ name: newBarberName.trim(), is_active: newBarberActive }]);
     if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
     setNewBarberName(""); setNewBarberActive(true);
     toast({ title: "Barber Added", description: "New barber added successfully." });
@@ -717,34 +894,12 @@ export default function AdminDashboard() {
     loadData();
   };
 
-  /* =========================
-     Services
-  ========================= */
-
   const addService = () => {
-    if (!svcName.trim() || !svcCategory) {
-      toast({ title: "Missing fields", description: "Name and Category are required.", variant: "destructive" });
-      return;
-    }
+    if (!svcName.trim() || !svcCategory) { toast({ title: "Missing fields", description: "Name and Category are required.", variant: "destructive" }); return; }
     const priceNum = svcPrice ? Number(svcPrice) : null;
-    if (svcPrice && Number.isNaN(priceNum)) {
-      toast({ title: "Invalid price", description: "Please enter a valid number.", variant: "destructive" });
-      return;
-    }
-    setServices((prev) => [
-      ...prev,
-      {
-        id: generateServiceId(), name: svcName.trim(),
-        description: svcDesc.trim() || null, price: priceNum,
-        category: svcCategory, is_active: true,
-        created_at: new Date().toISOString(),
-        tags: svcTags.filter((t) => t.trim()),
-        features: svcFeatures.filter((f) => f.trim()),
-        featured: svcFeatured,
-      },
-    ]);
-    setSvcName(""); setSvcDesc(""); setSvcPrice(""); setSvcCategory(undefined);
-    setSvcFeatures([]); setSvcTags([]); setSvcFeatured(false);
+    if (svcPrice && Number.isNaN(priceNum)) { toast({ title: "Invalid price", description: "Please enter a valid number.", variant: "destructive" }); return; }
+    setServices((prev) => [...prev, { id: generateServiceId(), name: svcName.trim(), description: svcDesc.trim() || null, price: priceNum, category: svcCategory, is_active: true, created_at: new Date().toISOString(), tags: svcTags.filter((t) => t.trim()), features: svcFeatures.filter((f) => f.trim()), featured: svcFeatured }]);
+    setSvcName(""); setSvcDesc(""); setSvcPrice(""); setSvcCategory(undefined); setSvcFeatures([]); setSvcTags([]); setSvcFeatured(false);
     toast({ title: "Service Added", description: "New service added successfully." });
   };
 
@@ -752,8 +907,7 @@ export default function AdminDashboard() {
     setServices((prev) => {
       const idx = prev.findIndex((s) => s.id === serviceId);
       if (idx === -1) { toast({ title: "Error", description: "Service not found", variant: "destructive" }); return prev; }
-      const updated = [...prev];
-      const old = updated[idx];
+      const updated = [...prev]; const old = updated[idx];
       updated[idx] = { ...old, is_active: isActive };
       toast({ title: "Updated", description: `${old.name} is now ${isActive ? "active" : "inactive"}`, duration: 2000 });
       return updated;
@@ -762,12 +916,7 @@ export default function AdminDashboard() {
 
   const startEditService = (svc: Service) => {
     setEditingServiceId(svc.id);
-    setEditSvc({
-      name: svc.name, description: svc.description ?? "",
-      price: svc.price != null ? String(svc.price) : "",
-      category: svc.category, tags: svc.tags || [],
-      features: svc.features || [], featured: svc.featured || false,
-    });
+    setEditSvc({ name: svc.name, description: svc.description ?? "", price: svc.price != null ? String(svc.price) : "", category: svc.category, tags: svc.tags || [], features: svc.features || [], featured: svc.featured || false });
   };
 
   const cancelEditService = () => {
@@ -776,25 +925,10 @@ export default function AdminDashboard() {
   };
 
   const saveEditService = (svcId: string) => {
-    if (!editSvc.name.trim()) {
-      toast({ title: "Name required", description: "Service name cannot be empty.", variant: "destructive" });
-      return;
-    }
+    if (!editSvc.name.trim()) { toast({ title: "Name required", description: "Service name cannot be empty.", variant: "destructive" }); return; }
     const priceNum = editSvc.price ? Number(editSvc.price) : null;
-    if (editSvc.price && Number.isNaN(priceNum)) {
-      toast({ title: "Invalid price", description: "Please enter a valid number.", variant: "destructive" });
-      return;
-    }
-    setServices((prev) =>
-      prev.map((s) => s.id === svcId ? {
-        ...s, name: editSvc.name.trim(),
-        description: editSvc.description.trim() || null, price: priceNum,
-        category: editSvc.category,
-        tags: editSvc.tags?.filter((t) => t.trim()) || [],
-        features: editSvc.features?.filter((f) => f.trim()) || [],
-        featured: editSvc.featured || false,
-      } : s)
-    );
+    if (editSvc.price && Number.isNaN(priceNum)) { toast({ title: "Invalid price", description: "Please enter a valid number.", variant: "destructive" }); return; }
+    setServices((prev) => prev.map((s) => s.id === svcId ? { ...s, name: editSvc.name.trim(), description: editSvc.description.trim() || null, price: priceNum, category: editSvc.category, tags: editSvc.tags?.filter((t) => t.trim()) || [], features: editSvc.features?.filter((f) => f.trim()) || [], featured: editSvc.featured || false } : s));
     cancelEditService();
     toast({ title: "Saved", description: "Service updated successfully." });
   };
@@ -807,40 +941,20 @@ export default function AdminDashboard() {
     toast({ title: "Deleted", description: `${svc.name} has been removed.` });
   };
 
-const getServicePrice = (serviceType: string) => {
-  const match = services.find(
-    (s) =>
-      s.id === serviceType ||
-      s.name === serviceType ||
-      s.id.toLowerCase().startsWith(serviceType.toLowerCase()) ||
-      serviceType.toLowerCase().startsWith(s.id.toLowerCase())
-  );
-  return match?.price != null ? `DKK ${Number(match.price).toFixed(0)}` : "—";
-};
-
-
-  /* =========================
-     Misc
-  ========================= */
+  const getServicePrice = (serviceType: string) => {
+    const match = services.find((s) => s.id === serviceType || s.name === serviceType || s.id.toLowerCase().startsWith(serviceType.toLowerCase()) || serviceType.toLowerCase().startsWith(s.id.toLowerCase()));
+    return match?.price != null ? `DKK ${Number(match.price).toFixed(0)}` : "—";
+  };
 
   const handleLogout = async () => { await supabase.auth.signOut(); navigate("/admin"); };
 
-  const getBarberName = (barberId: string) =>
-    barbers.find((b) => b.id === barberId)?.name ?? "Unknown";
+  const getBarberName = (barberId: string) => barbers.find((b) => b.id === barberId)?.name ?? "Unknown";
 
   const getServiceLabel = (serviceType: string) => {
-  const match = (servicesData as any[]).find(
-    (s) =>
-      s.id === serviceType ||
-      s.name === serviceType ||
-      s.id.toLowerCase().startsWith(serviceType.toLowerCase()) ||
-      serviceType.toLowerCase().startsWith(s.id.toLowerCase())
-  );
-
-  if (!match) return serviceType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-
-  return language === "da" && match.name_da ? match.name_da : match.name;
-};
+    const match = (servicesData as any[]).find((s) => s.id === serviceType || s.name === serviceType || s.id.toLowerCase().startsWith(serviceType.toLowerCase()) || serviceType.toLowerCase().startsWith(s.id.toLowerCase()));
+    if (!match) return serviceType.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+    return language === "da" && match.name_da ? match.name_da : match.name;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -868,10 +982,6 @@ const getServicePrice = (serviceType: string) => {
   const displayedAppointments = sortAppointments(filterAppointments(appointments));
   const menServices = services.filter((s) => s.category === "men");
   const womenServices = services.filter((s) => s.category === "women");
-
-  /* =========================
-     Render helpers
-  ========================= */
 
   const renderSortButton = (col: typeof sortBy, label: string) => (
     <Button variant="ghost" onClick={() => handleSort(col)} className="h-auto p-0 font-semibold hover:bg-transparent">
@@ -911,11 +1021,7 @@ const getServicePrice = (serviceType: string) => {
             : svc.featured ? <span className="text-yellow-500">⭐ Featured</span> : "-"}
         </TableCell>
         <TableCell>
-          <Switch
-            key={`${svc.category}-${svc.id}-${svc.is_active}`}
-            checked={svc.is_active}
-            onCheckedChange={(checked) => toggleServiceActive(svc.id, checked)}
-          />
+          <Switch key={`${svc.category}-${svc.id}-${svc.is_active}`} checked={svc.is_active} onCheckedChange={(checked) => toggleServiceActive(svc.id, checked)} />
         </TableCell>
         <TableCell className="text-right">
           {isEditing ? (
@@ -939,37 +1045,27 @@ const getServicePrice = (serviceType: string) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Featured</TableHead>
-            <TableHead>Active</TableHead>
+            <TableHead>Name</TableHead><TableHead>Price</TableHead>
+            <TableHead>Featured</TableHead><TableHead>Active</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {list.map(renderServiceRow)}
           {list.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">{emptyMessage}</TableCell>
-            </TableRow>
+            <TableRow><TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-6">{emptyMessage}</TableCell></TableRow>
           )}
         </TableBody>
       </Table>
     </div>
   );
 
-  /* =========================
-     Main render
-  ========================= */
-
   return (
     <div className="min-h-screen bg-background">
       <header className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" /> Logout
-          </Button>
+          <Button variant="outline" onClick={handleLogout}><LogOut className="h-4 w-4 mr-2" /> Logout</Button>
         </div>
       </header>
 
@@ -991,9 +1087,7 @@ const getServicePrice = (serviceType: string) => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{todayAppointments.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {todayAppointments.filter((a) => a.status === "confirmed").length} confirmed
-                  </p>
+                  <p className="text-xs text-muted-foreground">{todayAppointments.filter((a) => a.status === "confirmed").length} confirmed</p>
                 </CardContent>
               </Card>
               <Card>
@@ -1070,25 +1164,17 @@ const getServicePrice = (serviceType: string) => {
                           <TableCell>
                             <div className="font-medium">{appointment.customer_name}</div>
                             <div className="text-sm text-muted-foreground">{appointment.customer_email}</div>
-                            {appointment.customer_phone && (
-                              <div className="text-sm text-muted-foreground">{appointment.customer_phone}</div>
-                            )}
+                            {appointment.customer_phone && <div className="text-sm text-muted-foreground">{appointment.customer_phone}</div>}
                           </TableCell>
                           <TableCell>
                             <div className="font-medium">{format(parseISO(appointment.appointment_date), "MMM d, yyyy")}</div>
                             <div className="text-sm text-muted-foreground">{appointment.appointment_time}</div>
                           </TableCell>
-                          
                           <TableCell>{getServiceLabel(appointment.service_type)}</TableCell>
-                          <TableCell className="font-medium text-emerald-700">
-                          {getServicePrice(appointment.service_type)}</TableCell>
+                          <TableCell className="font-medium text-emerald-700">{getServicePrice(appointment.service_type)}</TableCell>
                           <TableCell className="font-medium">{getBarberName(appointment.barber_id)}</TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(appointment.status)}>{appointment.status}</Badge>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {format(parseISO(appointment.created_at), "MMM d, yyyy")}
-                          </TableCell>
+                          <TableCell><Badge className={getStatusColor(appointment.status)}>{appointment.status}</Badge></TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{format(parseISO(appointment.created_at), "MMM d, yyyy")}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               {appointment.status !== "cancelled" && (
@@ -1102,40 +1188,32 @@ const getServicePrice = (serviceType: string) => {
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>Cancel Appointment</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Cancel {appointment.customer_name}'s appointment on{" "}
-                                        {format(parseISO(appointment.appointment_date), "MMMM d, yyyy")} at {appointment.appointment_time}?
+                                        Cancel {appointment.customer_name}'s appointment on {format(parseISO(appointment.appointment_date), "MMMM d, yyyy")} at {appointment.appointment_time}?
                                         <br /><br />The customer will be notified via email.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => cancelAppointment(appointment)} className="bg-orange-600 hover:bg-orange-700">
-                                        Cancel Appointment
-                                      </AlertDialogAction>
+                                      <AlertDialogAction onClick={() => cancelAppointment(appointment)} className="bg-orange-600 hover:bg-orange-700">Cancel Appointment</AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
                               )}
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button size="sm" variant="destructive">
-                                    <Trash2 className="h-3 w-3 mr-1" /> Delete
-                                  </Button>
+                                  <Button size="sm" variant="destructive"><Trash2 className="h-3 w-3 mr-1" /> Delete</Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>Delete Appointment</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Permanently delete {appointment.customer_name}'s appointment on{" "}
-                                      {format(parseISO(appointment.appointment_date), "MMMM d, yyyy")} at {appointment.appointment_time}?
-                                      <br /><br /><strong>This cannot be undone.</strong> The customer will be notified.
+                                      Permanently delete {appointment.customer_name}'s appointment on {format(parseISO(appointment.appointment_date), "MMMM d, yyyy")} at {appointment.appointment_time}?
+                                      <br /><br /><strong>This cannot be undone.</strong>
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => deleteAppointment(appointment)} className="bg-red-600 hover:bg-red-700">
-                                      Delete Permanently
-                                    </AlertDialogAction>
+                                    <AlertDialogAction onClick={() => deleteAppointment(appointment)} className="bg-red-600 hover:bg-red-700">Delete Permanently</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
@@ -1181,9 +1259,7 @@ const getServicePrice = (serviceType: string) => {
                       <Switch checked={newBarberActive} onCheckedChange={(v) => setNewBarberActive(!!v)} id="barber-active" />
                       <Label htmlFor="barber-active">Active</Label>
                     </div>
-                    <Button onClick={addBarber} className="ml-auto">
-                      <Plus className="h-4 w-4 mr-2" /> Add Barber
-                    </Button>
+                    <Button onClick={addBarber} className="ml-auto"><Plus className="h-4 w-4 mr-2" /> Add Barber</Button>
                   </div>
                 </div>
               </CardContent>
@@ -1193,9 +1269,8 @@ const getServicePrice = (serviceType: string) => {
               <div className="mb-5">
                 <h2 className="text-lg font-semibold">Weekly Schedules</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Set each barber's working days and hours, week by week. Toggle individual days on or off,
-                  adjust hours, then click <strong>Save Week</strong>. Use <strong>Copy to next week</strong> to
-                  roll the same schedule forward without re-entering it each time.
+                  Set each barber's working days and hours. Toggle days on/off, adjust hours, then click <strong>Save Week</strong>.
+                  Use <strong>Date Range Availability</strong> to set multi-day blocks like holidays or vacation.
                 </p>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
