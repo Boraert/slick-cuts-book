@@ -11,7 +11,7 @@ import BookAppointment from "./pages/BookAppointment";
 import Services from "./pages/Services";
 import Contact from "./pages/Contact";
 import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/Admin-dashborad/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import About from "./components/About";
 import CustomerPortalLogin     from '@/pages/customer-login/CustomerPortalLogin';
