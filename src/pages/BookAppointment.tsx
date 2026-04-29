@@ -748,7 +748,7 @@ export default function BookAppointment() {
                         )}
                       />
                       <ReCAPTCHA
-  sitekey="6LcF7NAsAAAAAH2XcnkZ2FMv5K5c5TAeBiP-nlv3"
+  sitekey="6Ldi7tAsAAAAAKwdD2h_ahFwMbTrnTEISIDbg_2t"
   onChange={(token) => setRecaptchaToken(token)}
 />
 
