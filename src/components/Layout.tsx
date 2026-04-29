@@ -91,9 +91,6 @@ export function Layout() {
             <div className="hidden md:flex items-center space-x-4">
               <LanguageSwitcher />
 
-              <Button onClick={() => navigate("/min-konto")}>
-                Login
-              </Button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -135,17 +132,7 @@ export function Layout() {
                   <LanguageSwitcher />
                 </div>
 
-                <div className="px-3 py-2">
-                  <Button
-                    className="w-full"
-                    onClick={() => {
-                      navigate("/min-konto");
-                      setIsMobileMenuOpen(false);
-                    }}
-                  >
-                    Login
-                  </Button>
-                </div>
+               
               </div>
             </div>
           )}
